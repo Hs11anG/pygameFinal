@@ -64,20 +64,20 @@ LEVELS = {
 WEAPON_DATA = {
     1: {
         'id': 'bsword',
-        'name': '竹簡劍',
+        'name': '竹簡劍-fast',
         'image_path': 'assets/images/bsword.png',
         'size': (50, 50),       # 武器在地面上或頭頂上的圖標大小
         'projectile_size_multiplier': 0.9, # 飛出去的武器是圖標的 0.5 倍大
         'damage': 30,
-        'cooldown': 0.5 # 0.5 秒冷卻
+        'cooldown': 0.1 # 0.5 秒冷卻
     },
     2: {
-        'id': 'bsword',
-        'name': '竹簡劍-fast',
-        'image_path': 'assets/images/bsword.png',
+        'id': 'board',
+        'name': '轉型正義',
+        'image_path': 'assets/images/board.png',
         'size': (70, 70),       # 武器在地面上或頭頂上的圖標大小
         'projectile_size_multiplier': 0.9, # 飛出去的武器是圖標的 0.5 倍大
-        'damage': 15,
+        'damage': 50,
         'cooldown': 0.1 # 0.5 秒冷卻
     } ,
     3: {

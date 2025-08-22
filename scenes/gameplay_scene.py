@@ -6,6 +6,7 @@ from asset_manager import assets
 from player import Player
 from monster_manager import MonsterManager
 from weapon import Weapon
+from save_manager import save_manager
 
 class GameplayScene(Scene):
     def __init__(self, manager):
@@ -80,10 +81,11 @@ class GameplayScene(Scene):
             remaining_monsters = len(self.monster_manager.monsters)
             total_failed_monsters = self.escaped_monsters_count + remaining_monsters
             
-            # 【修改】判斷結果，並設定和切換到 EndLevelScene
             end_scene = self.manager.scenes['end_level']
             if total_failed_monsters < self.victory_monster_limit:
                 self.game_state = 'victory'
+                # 【【【新增】】】勝利後，解鎖下一關
+                save_manager.unlock_next_level(self.current_level)
                 end_scene.setup('victory', self.current_level)
             else:
                 self.game_state = 'defeat'

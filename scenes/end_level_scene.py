@@ -7,33 +7,29 @@ from asset_manager import assets
 class EndLevelScene(Scene):
     def __init__(self, manager):
         super().__init__(manager)
-        self.result = "" # "victory" or "defeat"
+        self.result = ""
         self.current_level = 0
         self.options = []
         self.option_rects = []
         self.hovered_option = -1
         
     def setup(self, result, level):
-        """從 GameplayScene 接收關卡結果"""
         self.result = result
         self.current_level = level
         self.hovered_option = -1
         
-        # 根據結果設定選項
         if self.result == 'victory':
             self.title = "勝利"
             self.title_color = WHITE
-            # 檢查是否有下一關
             if (self.current_level + 1) in LEVELS:
                 self.options = ["下一關", "回到主畫面"]
             else:
-                self.options = ["回到主畫面"] # 沒有下一關了
+                self.options = ["回到主畫面"]
         else: # defeat
             self.title = "失敗"
             self.title_color = HOVER_COLOR
             self.options = ["重新挑戰", "回到主畫面"]
             
-        # 建立選項的 Rect
         self.option_rects = []
         for i, option in enumerate(self.options):
             rect = pygame.Rect(0, 0, 400, 70)
@@ -48,8 +44,7 @@ class EndLevelScene(Scene):
                 self.hovered_option = -1
                 for i, rect in enumerate(self.option_rects):
                     if rect.collidepoint(event.pos):
-                        self.hovered_option = i
-                        break
+                        self.hovered_option = i; break
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.select_option(self.hovered_option)
 
@@ -57,14 +52,20 @@ class EndLevelScene(Scene):
         if index == -1: return
 
         selected = self.options[index]
-        gameplay_scene = self.manager.scenes['gameplay']
-
+        
+        # --- ↓↓↓ 【【【這就是本次的核心修改】】】 ↓↓↓ ---
         if selected == "下一關":
-            gameplay_scene.load_level(self.current_level + 1)
-            self.manager.switch_to_scene('gameplay')
+            # 勝利後選擇下一關，應該是回到「關卡選擇地圖」
+            level_select_scene = self.manager.scenes['level_select']
+            level_select_scene.setup_level_icons() # 更新圖標解鎖狀態
+            self.manager.switch_to_scene('level_select')
+            
         elif selected == "重新挑戰":
+            # 失敗後選擇重來，直接重新載入當前關卡
+            gameplay_scene = self.manager.scenes['gameplay']
             gameplay_scene.load_level(self.current_level)
             self.manager.switch_to_scene('gameplay')
+
         elif selected == "回到主畫面":
             self.manager.switch_to_scene('main_menu')
             
@@ -78,7 +79,7 @@ class EndLevelScene(Scene):
 
         # 畫一個半透明的遮罩
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180)) # 黑色，180/255 的透明度
+        overlay.fill((0, 0, 0, 180))
         screen.blit(overlay, (0,0))
         
         # 畫標題

@@ -39,10 +39,10 @@ class MainMenuScene(Scene):
 
     def select_option(self, index):
         if index == 0: # 開始新遊戲
-            gameplay_scene = self.manager.scenes['gameplay']
-            # 載入數字為 1 的關卡
-            gameplay_scene.load_level(1) 
-            self.manager.switch_to_scene('gameplay')
+            # 【【【修改】】】現在切換到關卡選擇畫面
+            level_select_scene = self.manager.scenes['level_select']
+            level_select_scene.setup_level_icons() # 每次進入時都重新整理圖標狀態
+            self.manager.switch_to_scene('level_select')
         elif index == 1: # 讀取存檔
             print("[INFO] '讀取存檔' 功能尚未實作。")
         elif index == 2: # 離開遊戲
@@ -70,13 +70,13 @@ class MainMenuScene(Scene):
         menu_font = assets.get_font('menu')
 
         # 繪製標題
-        title_surf = title_font.render("府城淨化錄", True, Fubon)
+        title_surf = title_font.render("府 城 淨 化 錄", True, WHITE)
         title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.2))
         screen.blit(title_surf, title_rect)
 
         # 繪製菜單選項
         for i, option_text in enumerate(self.menu_options):
-            color = Fubon
+            color = WHITE
             if i == self.hovered_option:
                 color = HOVER_COLOR
             

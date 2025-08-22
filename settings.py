@@ -84,7 +84,8 @@ WEAPON_DATA = {
         'damage': 30,
         'cooldown': 0.1,
         # ↓↓↓ 【【【核心修正：將 projectile_class 改為 projectile_class_name】】】 ↓↓↓
-        'projectile_class_name': 'BswordProjectile' 
+        'projectile_class_name': 'BswordProjectile' ,
+        'cooldown_type': 'on_fire' # 射出即冷卻
     },
     2: {
         'id': 'board', 
@@ -94,7 +95,8 @@ WEAPON_DATA = {
         'projectile_size_multiplier': 0.9,
         'damage': 50,
         'cooldown': 10,
-        'projectile_class_name': 'BoardProjectile'
+        'projectile_class_name': 'BoardProjectile',
+        'cooldown_type': 'on_return' # 射出即冷卻
     },
     3: {
         'id': 'bsword_heavy', # 修正了重複的ID
@@ -104,7 +106,8 @@ WEAPON_DATA = {
         'projectile_size_multiplier': 0.9,
         'damage': 100,
         'cooldown': 3.0,
-        'projectile_class_name': 'BswordProjectile'
+        'projectile_class_name': 'BswordProjectile',
+        'cooldown_type': 'on_fire' # 射出即冷卻
     }
 }
 

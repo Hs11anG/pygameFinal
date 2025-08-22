@@ -1,7 +1,7 @@
 # projectile.py
 import pygame
 import math
-from settings import * # <--- 【【【補上這一行，解決問題】】】
+from settings import *
 from asset_manager import assets
 
 class Projectile(pygame.sprite.Sprite):
@@ -28,7 +28,7 @@ class BswordProjectile(Projectile):
         original_image = assets.get_image(self.data['id'])
         dx = target_pos[0] - start_pos[0]
         dy = target_pos[1] - start_pos[1]
-        angle = math.degrees(math.atan2(-dy, dx)) - 90
+        angle = math.degrees(math.atan2(-dy, dx))
         rotated_image = pygame.transform.rotate(original_image, angle)
         size_multiplier = self.data['projectile_size_multiplier']
         new_size = (int(self.data['size'][0] * size_multiplier), int(self.data['size'][1] * size_multiplier))
@@ -81,7 +81,9 @@ class BoardProjectile(Projectile):
         
         if self.state == 'outbound':
             self.rect.center += self.direction * self.speed
-            if not pygame.Rect(-50, -50, SCREEN_WIDTH+100, SCREEN_HEIGHT+100).colliderect(self.rect):
+            # ↓↓↓ 【【【核心修正：恢復邊界碰撞邏輯】】】 ↓↓↓
+            # 檢查 projectile 的 rect 是否接觸到螢幕的四個邊緣
+            if self.rect.left <= 0 or self.rect.right >= SCREEN_WIDTH or self.rect.top <= 0 or self.rect.bottom >= SCREEN_HEIGHT:
                 self.start_spinning()
         
         elif self.state == 'spinning':
@@ -90,7 +92,8 @@ class BoardProjectile(Projectile):
         
         elif self.state == 'returning':
             return_direction = (self.origin_pos - pygame.Vector2(self.rect.center))
-            if return_direction.length() < self.speed:
+            # 稍微提前判斷，防止抖動
+            if return_direction.length() < self.speed * 2:
                 self.kill()
             else:
                 self.rect.center += return_direction.normalize() * self.speed

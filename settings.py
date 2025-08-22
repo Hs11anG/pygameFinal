@@ -87,13 +87,13 @@ WEAPON_DATA = {
         'projectile_class_name': 'BswordProjectile' 
     },
     2: {
-        'id': 'board',
+        'id': 'board', 
         'name': '轉型正義',
         'image_path': 'assets/images/board.png',
         'size': (70, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 50,
-        'cooldown': 0.1,
+        'cooldown': 10,
         'projectile_class_name': 'BoardProjectile'
     },
     3: {

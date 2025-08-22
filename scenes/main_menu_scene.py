@@ -3,6 +3,7 @@ import pygame
 from settings import *
 from scene_manager import Scene
 from asset_manager import assets
+from save_manager import save_manager, MAX_SAVES
 
 class MainMenuScene(Scene):
     def __init__(self, manager):
@@ -39,15 +40,26 @@ class MainMenuScene(Scene):
 
     def select_option(self, index):
         if index == 0: # 開始新遊戲
-            # 【【【修改】】】現在切換到關卡選擇畫面
-            level_select_scene = self.manager.scenes['level_select']
-            level_select_scene.setup_level_icons() # 每次進入時都重新整理圖標狀態
-            self.manager.switch_to_scene('level_select')
+            saves = save_manager.get_all_saves()
+            if len(saves) < MAX_SAVES:
+                # 如果存檔未滿，直接創建新檔並進入關卡選擇
+                save_manager.create_new_save()
+                level_select_scene = self.manager.scenes['level_select']
+                level_select_scene.setup()
+                self.manager.switch_to_scene('level_select')
+            else:
+                # 如果存檔已滿，進入刪除模式
+                save_slot_scene = self.manager.scenes['save_slot']
+                save_slot_scene.setup('delete')
+                self.manager.switch_to_scene('save_slot')
+
         elif index == 1: # 讀取存檔
-            print("[INFO] '讀取存檔' 功能尚未實作。")
+            save_slot_scene = self.manager.scenes['save_slot']
+            save_slot_scene.setup('load')
+            self.manager.switch_to_scene('save_slot')
+            
         elif index == 2: # 離開遊戲
-            pygame.quit()
-            exit()
+            pygame.quit(); exit()
             
     def update(self):
         """

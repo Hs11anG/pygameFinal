@@ -20,7 +20,7 @@ class LevelSelectScene(Scene):
 
         self.can_interact = True
 
-    def setup_level_icons(self):
+    def setup(self):
         """根據存檔資料建立關卡圖標"""
         self.level_icons.empty()
         # 假設關卡圖標位置固定

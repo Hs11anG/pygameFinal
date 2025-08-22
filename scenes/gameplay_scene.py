@@ -83,10 +83,15 @@ class GameplayScene(Scene):
             
             end_scene = self.manager.scenes['end_level']
             if total_failed_monsters < self.victory_monster_limit:
-                self.game_state = 'victory'
-                # 【【【新增】】】勝利後，解鎖下一關
+                # 勝利時，更新當前存檔
                 save_manager.unlock_next_level(self.current_level)
+                # (注意：金幣功能尚未實作，所以暫時不更新金幣)
+                # save_manager.update_current_save(...) 
+                
+                # 轉到結束畫面
+                end_scene = self.manager.scenes['end_level']
                 end_scene.setup('victory', self.current_level)
+                self.manager.switch_to_scene('end_level')
             else:
                 self.game_state = 'defeat'
                 end_scene.setup('defeat', self.current_level)

@@ -57,7 +57,33 @@ LEVELS = {
             (2, (950, 375)) ,
             (3, (850, 375)) 
         ]
-    }
+    },
+    3: {
+    'id': 'pier_assault_3',
+    'name': 'pier_assault_3',
+    'background_image': 'assets/images/pier3_background.png',
+    'walkable_mask_image': 'assets/images/pier3_walkable_mask.png',
+    'spawn_point': (650, 375),
+    'offsetx' : 20, 
+    'offsety' : 20,
+    'playersize': (30, 60),
+    'duration': 30,
+    'spawns': {
+        'gbird_alpha': 30,
+        'gbird_beta': 10,
+        'solarpanel_beta': 10
+    },
+    'victory_monster_limit': 20,
+    
+    # ↓↓↓ 【【【新增武器生成設定】】】 ↓↓↓
+    'weapon_spawns': [
+        # 格式是 (武器類型ID, (x, y)座標)
+        (1, (1100, 375)) ,
+        (2, (950, 375)) ,
+        (3, (850, 375)) 
+    ]
+}
+    
 }
 
 

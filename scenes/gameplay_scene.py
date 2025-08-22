@@ -7,6 +7,7 @@ from player import Player
 from monster_manager import MonsterManager
 from weapon import Weapon
 from save_manager import save_manager
+from projectile import BswordProjectile, BoardProjectile # 【修改】引入新的飛行物類別
 
 class GameplayScene(Scene):
     def __init__(self, manager):
@@ -64,16 +65,44 @@ class GameplayScene(Scene):
                 self.manager.switch_to_scene('main_menu')
                 
     def check_collisions(self):
-        # ... (此方法不變)
+        """【修改】處理兩種武器的不同碰撞邏輯"""
         if not self.monster_manager: return
-        possible_hits = pygame.sprite.groupcollide(self.projectile_group, self.monster_manager.monsters, False, False)
+        now = pygame.time.get_ticks()
+
+        # 廣域檢測
+        possible_hits = pygame.sprite.groupcollide(
+            self.projectile_group, 
+            self.monster_manager.monsters, 
+            False, False # 不要自動移除任何東西
+        )
+        
         for projectile, monsters_hit in possible_hits.items():
             for monster in monsters_hit:
+                # 精細檢測
                 if pygame.sprite.collide_mask(projectile, monster):
-                    monster.health -= projectile.damage
-                    projectile.kill()
-                    if monster.health <= 0: monster.kill()
-                    break
+                    
+                    # --- 判斷飛行物類型 ---
+                    if isinstance(projectile, BswordProjectile):
+                        # 如果是竹簡劍，碰撞後就直接消失
+                        monster.health -= projectile.damage
+                        projectile.kill() 
+                        if monster.health <= 0: monster.kill()
+                        break # 一顆子彈只傷害一個怪物
+
+                    elif isinstance(projectile, BoardProjectile):
+                        # 如果是迴力鏢
+                        if projectile.state == 'outbound':
+                            # 飛出去時撞到敵人，開始原地旋轉
+                            projectile.start_spinning()
+                        
+                        # 檢查對該怪物的傷害冷卻
+                        last_hit_time = projectile.hit_cooldowns.get(monster, 0)
+                        if now - last_hit_time > 1000: # 1000毫秒 = 1秒
+                            # 造成傷害並記錄這次傷害的時間
+                            monster.health -= projectile.damage
+                            projectile.hit_cooldowns[monster] = now
+                            print(f"Board hit {monster.data['name']}! Health: {monster.health}")
+                            if monster.health <= 0: monster.kill()
 
     def check_game_over(self):
         elapsed_time = pygame.time.get_ticks() - self.level_start_time

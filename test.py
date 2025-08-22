@@ -14,7 +14,7 @@ pygame.display.set_caption("圖片載入與滑鼠點擊偵測")
 # 請將 'your_image.png' 換成您自己的圖片檔案名稱
 # 確保圖片檔案與此 .py 檔案在同一個資料夾中
 try:
-    loaded_image = pygame.image.load('assets/images/pier_walkable_mask.png')
+    loaded_image = pygame.image.load('assets/images/pier2_walkable_mask.png')
     # 調整圖片大小以符合視窗，如果需要的話
     # loaded_image = pygame.transform.scale(loaded_image, (screen_width, screen_height))
 except pygame.error as e:

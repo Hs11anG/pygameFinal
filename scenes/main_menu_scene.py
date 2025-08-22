@@ -70,13 +70,13 @@ class MainMenuScene(Scene):
         menu_font = assets.get_font('menu')
 
         # 繪製標題
-        title_surf = title_font.render("Coast Guardian", True, WHITE)
+        title_surf = title_font.render("府城淨化錄", True, Fubon)
         title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.2))
         screen.blit(title_surf, title_rect)
 
         # 繪製菜單選項
         for i, option_text in enumerate(self.menu_options):
-            color = WHITE
+            color = Fubon
             if i == self.hovered_option:
                 color = HOVER_COLOR
             

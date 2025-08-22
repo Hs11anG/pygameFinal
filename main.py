@@ -16,7 +16,7 @@ class Game:
 
         print("--- Loading Assets ---")
         
-        assets.load_font('title', "NotoSerifTC-Medium.ttf", TITLE_FONT_SIZE)
+        assets.load_font('title', "NotoSerifTC-ExtraBold.ttf", TITLE_FONT_SIZE)
         assets.load_font('menu', "NotoSerifTC-Medium.ttf", MENU_FONT_SIZE)
         assets.load_font('ui',  "NotoSerifTC-Medium.ttf", 36)
         assets.load_font('weapon_ui', "NotoSerifTC-ExtraBold.ttf", 14)

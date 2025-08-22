@@ -26,7 +26,7 @@ class Projectile(pygame.sprite.Sprite):
         # 3. 使用 math.atan2 計算精準角度 (弧度)，並轉換為 Pygame 使用的角度
         # math.atan2(dy, dx) 的結果是弧度，pygame.math.rad_to_deg 將其轉為角度
         # Pygame 的角度是逆時針為正，所以我們需要加負號
-        angle = math.degrees(math.atan2(-dy, dx))
+        angle = math.degrees(math.atan2(-dy, dx)) -90
 
         # 4. 只旋轉這一次最原始的圖片
         rotated_image = pygame.transform.rotate(original_image, angle)

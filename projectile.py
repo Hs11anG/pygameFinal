@@ -5,15 +5,10 @@ from settings import *
 from asset_manager import assets
 
 class Projectile(pygame.sprite.Sprite):
-    """
-    所有飛行物的基礎類別 (父類別)，定義共通屬性。
-    """
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__()
         self.data = WEAPON_DATA.get(weapon_type)
-        if not self.data:
-            self.kill(); return
-        
+        if not self.data: self.kill(); return
         self.damage = self.data['damage']
         self.creation_time = pygame.time.get_ticks()
 
@@ -25,17 +20,30 @@ class BswordProjectile(Projectile):
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
         
+        # --- ↓↓↓ 【【【這是修正後、更穩定的旋轉與圖像邏輯】】】 ↓↓↓
+        # 1. 載入原始圖片
         original_image = assets.get_image(self.data['id'])
-        dx = target_pos[0] - start_pos[0]
-        dy = target_pos[1] - start_pos[1]
-        angle = math.degrees(math.atan2(-dy, dx))
-        rotated_image = pygame.transform.rotate(original_image, angle)
+        
+        # 2. 【先縮放】到正確的飛行物大小
         size_multiplier = self.data['projectile_size_multiplier']
         new_size = (int(self.data['size'][0] * size_multiplier), int(self.data['size'][1] * size_multiplier))
-        self.image = pygame.transform.scale(rotated_image, new_size)
+        scaled_image = pygame.transform.scale(original_image, new_size)
+        
+        # 3. 計算角度
+        dx = target_pos[0] - start_pos[0]
+        dy = target_pos[1] - start_pos[1]
+        angle = math.degrees(math.atan2(-dy, dx)) - 90
+
+        # 4. 【再旋轉】已經縮放好的圖片
+        self.image = pygame.transform.rotate(scaled_image, angle)
+        
+        # 5. 【最後校正中心點】
+        # 取得旋轉後變大了的外框，並將它的中心點強制設定為我們的出發點
         self.rect = self.image.get_rect(center=start_pos)
+        
         self.mask = pygame.mask.from_surface(self.image)
         
+        # 移動邏輯 (不變)
         self.direction = pygame.Vector2(dx, dy)
         if self.direction.length() > 0:
             self.direction.normalize_ip()
@@ -48,15 +56,14 @@ class BswordProjectile(Projectile):
 
 # --- 武器二：轉型正義板 (迴力鏢) ---
 class BoardProjectile(Projectile):
+    # (這個類別的程式碼完全不需要修改)
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
-        
         self.original_image = assets.get_image(self.data['id'])
         size_multiplier = self.data['projectile_size_multiplier']
         self.size = (int(self.data['size'][0] * size_multiplier), int(self.data['size'][1] * size_multiplier))
         self.image = pygame.transform.scale(self.original_image, self.size)
         self.rect = self.image.get_rect(center=start_pos)
-        
         self.state = 'outbound'
         self.origin_pos = pygame.Vector2(start_pos)
         self.direction = (pygame.Vector2(target_pos) - self.origin_pos)
@@ -64,35 +71,26 @@ class BoardProjectile(Projectile):
         self.speed = 10
         self.angle = 0
         self.rotation_speed = 15
-        
         self.spin_start_time = 0
         self.spin_duration = 1000
-        
         self.hit_cooldowns = {}
 
     def update(self):
         now = pygame.time.get_ticks()
-        
         self.angle = (self.angle + self.rotation_speed) % 360
         old_center = self.rect.center
         self.image = pygame.transform.scale(pygame.transform.rotate(self.original_image, self.angle), self.size)
         self.rect = self.image.get_rect(center=old_center)
         self.mask = pygame.mask.from_surface(self.image)
-        
         if self.state == 'outbound':
             self.rect.center += self.direction * self.speed
-            # ↓↓↓ 【【【核心修正：恢復邊界碰撞邏輯】】】 ↓↓↓
-            # 檢查 projectile 的 rect 是否接觸到螢幕的四個邊緣
             if self.rect.left <= 0 or self.rect.right >= SCREEN_WIDTH or self.rect.top <= 0 or self.rect.bottom >= SCREEN_HEIGHT:
                 self.start_spinning()
-        
         elif self.state == 'spinning':
             if now - self.spin_start_time > self.spin_duration:
                 self.state = 'returning'
-        
         elif self.state == 'returning':
             return_direction = (self.origin_pos - pygame.Vector2(self.rect.center))
-            # 稍微提前判斷，防止抖動
             if return_direction.length() < self.speed * 2:
                 self.kill()
             else:

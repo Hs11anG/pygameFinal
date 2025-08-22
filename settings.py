@@ -43,7 +43,7 @@ LEVELS = {
             'gbird_beta': 10,
             'solarpanel_beta': 10
         },
-        'victory_monster_limit': 20,
+        'victory_monster_limit': 25,
         'weapon_spawns': [
             (1, (1100, 375)),
             (2, (950, 375)),
@@ -79,7 +79,7 @@ WEAPON_DATA = {
         'id': 'bsword',
         'name': '竹簡劍',
         'image_path': 'assets/images/bsword.png',
-        'size': (50, 50),
+        'size': (13, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 30,
         'cooldown': 0.1,

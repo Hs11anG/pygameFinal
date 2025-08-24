@@ -2,86 +2,89 @@
 import pygame
 from asset_manager import assets
 from settings import *
-from projectile import Projectile
+# 【修正】引入 PROJECTILE_CLASSES 以便查找
+from weapon import PROJECTILE_CLASSES
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, start_pos, level_number):
         super().__init__()
         
-        original_image = assets.get_image('player')
+        original_image = assets.get_image('player') # 修正了您之前指出的 'playe' 筆誤
         player_size = LEVELS[level_number]['playersize']
         self.image = pygame.transform.scale(original_image, player_size)
-        
         self.rect = self.image.get_rect(midbottom=start_pos)
-        self.mask = pygame.mask.from_surface(self.image)
         self.speed = 5
         
-        # 【修改】不再儲存武器類型，而是直接引用正在操作的武器物件
-        self.manning_weapon = None # Manning: 操縱
-        self.can_interact = True
-        self.offsetx = LEVELS[level_number]['offsetx']
-        self.offsety = LEVELS[level_number]['offsety']
-    def move(self, keys, walkable_mask):
-        """【修改】如果正在操作武器，則無法移動"""
-        if self.manning_weapon:
-            return
+        # 新的武器庫系統
+        self.unlocked_weapons = LEVELS[level_number].get('unlocked_weapons', [1])
+        self.current_weapon_index = 0
+        self.current_weapon_type = self.unlocked_weapons[self.current_weapon_index]
+        self.last_shot_time = {} # 為每種武器儲存獨立的冷卻時間
+        self.can_switch = True
 
-        old_rect = self.rect.copy()
+    def switch_weapon(self, direction):
+        """根據方向 (+1 或 -1) 切換武器"""
+        if not self.can_switch or len(self.unlocked_weapons) <= 1:
+            return
+        
+        self.current_weapon_index = (self.current_weapon_index + direction) % len(self.unlocked_weapons)
+        self.current_weapon_type = self.unlocked_weapons[self.current_weapon_index]
+        print(f"Switched to weapon: {WEAPON_DATA[self.current_weapon_type]['name']}")
+        self.can_switch = False
+
+    def move(self, keys):
+        # 移動邏輯簡化，不再需要 mask
         if keys[pygame.K_a] or keys[pygame.K_LEFT]: self.rect.x -= self.speed
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]: self.rect.x += self.speed
         if keys[pygame.K_w] or keys[pygame.K_UP]: self.rect.y -= self.speed
         if keys[pygame.K_s] or keys[pygame.K_DOWN]: self.rect.y += self.speed
-        
-        # 碰撞檢測邏輯不變
-        is_valid_move = False
-        bottom_left_vec = pygame.Vector2(self.rect.bottomleft)
-        bottom_right_vec = pygame.Vector2(self.rect.bottomright)
-        point1 = bottom_left_vec + pygame.Vector2(self.offsetx, 0)
-        point2 = bottom_right_vec - pygame.Vector2(self.offsetx, 0)
-        corners = [point1, point2]
-        for pos in corners:
-            try:
-                if walkable_mask.get_at(pos): is_valid_move = True; break
-            except IndexError: continue
-        if not is_valid_move: self.rect = old_rect
+        self.rect.clamp_ip(pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    def interact(self, weapon_group):
-        """【修改】互動邏輯變為'操縱'或'解除操縱'"""
-        if self.manning_weapon: # 如果正在操作武器，則解除
-            self.manning_weapon.state = 'in_range' # 武器狀態變回 "在範圍內"
-            self.manning_weapon = None
-            print("解除武器操作")
-            return
-
-        # 如果沒有在操作武器，檢查附近是否有可操作的
-        interaction_rect = self.rect.inflate(30, 30)
-        nearby_weapons = [w for w in weapon_group if interaction_rect.colliderect(w.rect)]
-
-        if nearby_weapons:
-            weapon_to_man = min(nearby_weapons, key=lambda w: pygame.Vector2(self.rect.center).distance_to(w.rect.center))
-            self.manning_weapon = weapon_to_man
-            self.manning_weapon.state = 'active' # 將武器狀態設為 "使用中"
-            print(f"開始操作: {self.manning_weapon.data['name']}")
-            
     def shoot(self, target_pos, projectile_group):
-        """【修改】射擊指令現在是傳遞給正在操作的武器"""
-        if self.manning_weapon:
-            self.manning_weapon.fire(target_pos, projectile_group)
+        now = pygame.time.get_ticks()
+        weapon_data = WEAPON_DATA[self.current_weapon_type]
+        cooldown = weapon_data['cooldown'] * 1000
+        
+        # 讀取該武器上次的開火時間，如果沒有則視為 0
+        last_shot = self.last_shot_time.get(self.current_weapon_type, 0)
 
-    def update(self, keys, events, walkable_mask, weapon_group, projectile_group):
-        self.move(keys, walkable_mask)
+        if now - last_shot > cooldown:
+            self.last_shot_time[self.current_weapon_type] = now # 更新該武器的開火時間
+            
+            class_name = weapon_data.get('projectile_class_name')
+            ProjectileClass = PROJECTILE_CLASSES.get(class_name)
 
-        if keys[pygame.K_e]:
-            if self.can_interact:
-                self.interact(weapon_group)
-                self.can_interact = False
+            if ProjectileClass:
+                new_projectile = ProjectileClass(self.rect.center, target_pos, self.current_weapon_type)
+                projectile_group.add(new_projectile)
+
+    def update(self, keys, events, projectile_group):
+        """【【【修正後的 update，只接收必要的參數】】】"""
+        self.move(keys)
+
+        # 武器切換邏輯
+        if keys[pygame.K_q]:
+            self.switch_weapon(-1)
+        elif keys[pygame.K_e]:
+            self.switch_weapon(1)
         else:
-            self.can_interact = True
+            self.can_switch = True
+            
+        # 按住滑鼠連續射擊
+        mouse_buttons = pygame.mouse.get_pressed()
+        if mouse_buttons[0]: # 左鍵
+            self.shoot(pygame.mouse.get_pos(), projectile_group)
 
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                self.shoot(event.pos, projectile_group)
-    
-    # 【修改】玩家不再需要 draw_ui 方法
-    # def draw_ui(self, screen):
-    #     pass
+    def draw_ui(self, screen):
+        """在頭頂繪製當前武器圖標和名稱"""
+        weapon_data = WEAPON_DATA[self.current_weapon_type]
+        
+        icon_image = assets.get_image(weapon_data['id'])
+        icon_image = pygame.transform.scale(icon_image, (40, 40))
+        icon_rect = icon_image.get_rect(midbottom=self.rect.midtop)
+        screen.blit(icon_image, icon_rect)
+
+        font = assets.get_font('weapon_ui')
+        text_surf = font.render(weapon_data['name'], True, WHITE)
+        text_rect = text_surf.get_rect(midbottom=icon_rect.midtop)
+        screen.blit(text_surf, text_rect)

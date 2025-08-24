@@ -33,7 +33,7 @@ class LevelSelectScene(Scene):
 
     def handle_events(self, events):
         keys = pygame.key.get_pressed()
-        self.player.move(keys, self.walkable_mask)
+        self.player.move(keys)
 
         # 處理 E 鍵互動
         if keys[pygame.K_e]:

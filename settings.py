@@ -1,77 +1,63 @@
 # settings.py
 import pygame
-
+# from projectile import BswordProjectile, BoardProjectile
 
 # 螢幕設定
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 800
 FPS = 60
 
-# ==== 關卡資料設定 ====
+# ==== 關卡資料設定 (重構後) ====
 LEVELS = {
     1: {
         'id': 'pier_assault',
         'name': 'pier_assault',
         'background_image': 'assets/images/pier_background.png',
-        'walkable_mask_image': 'assets/images/pier_walkable_mask.png',
-        'spawn_point': (280, 350),
+        # 【修改】移除 walkable_mask_image，遊戲場景不再需要
+        
+        # 【修改】舊的 spawn_point 現在是保護目標的位置
+        'protection_point': (280, 350), 
+        # 【修改】玩家出生點改為舊武器的位置
+        'player_spawn_point': (380, 400),
+        
         'offsetx' : 20, 
         'offsety' : 20,
         'playersize': (30, 60),
-        'duration': 5,
-        'spawns': {
-            'gbird_alpha': 5,
-            'gbird_beta': 10
-        },
+        'duration': 30,
+        'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10 },
         'victory_monster_limit': 20,
-        'weapon_spawns': [
-            (1, (380, 400))
-        ]
+        # 【修改】移除 weapon_spawns，武器改由玩家持有
+        'unlocked_weapons': [1, 2] # <--- 【新增】定義本關可用的武器 ID
     },
     2: {
         'id': 'pier_assault_2',
         'name': 'pier_assault_2',
         'background_image': 'assets/images/pier2_background.png',
-        'walkable_mask_image': 'assets/images/pier2_walkable_mask.png',
-        'spawn_point': (650, 375),
-        'offsetx' : 20, 
-        'offsety' : 20,
-        'playersize': (30, 60),
-        'duration': 60,
-        'spawns': {
-            'gbird_alpha': 30,
-            'gbird_beta': 10,
-            'solarpanel_beta': 10
-        },
-        'victory_monster_limit': 25,
-        'weapon_spawns': [
-            (1, (1100, 375)),
-            (2, (950, 375)),
-            (3, (850, 375))
-        ]
-    },
-    3: {
-        'id': 'pier_assault_3',
-        'name': 'pier_assault_3',
-        'background_image': 'assets/images/pier3_background.png',
-        'walkable_mask_image': 'assets/images/pier3_walkable_mask.png',
-        'spawn_point': (650, 375),
+        'protection_point': (650, 375),
+        'player_spawn_point': (850, 375),
         'offsetx' : 20, 
         'offsety' : 20,
         'playersize': (30, 60),
         'duration': 30,
-        'spawns': {
-            'gbird_alpha': 30,
-            'gbird_beta': 10,
-            'solarpanel_beta': 10
-        },
+        'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
         'victory_monster_limit': 20,
-        'weapon_spawns': [
-            (1, (1100, 375)),
-            (2, (950, 375)),
-            (3, (850, 375))
-        ]
+        'unlocked_weapons': [1, 2, 3] # 第二關解鎖所有武器
+    },
+    3: {
+        'id': 'pier_assault_2',
+        'name': 'pier_assault_2',
+        'background_image': 'assets/images/pier2_background.png',
+        'protection_point': (650, 375),
+        'player_spawn_point': (850, 375),
+        'offsetx' : 20, 
+        'offsety' : 20,
+        'playersize': (30, 60),
+        'duration': 30,
+        'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
+        'victory_monster_limit': 20,
+        'unlocked_weapons': [1, 2, 3] # 第二關解鎖所有武器
     }
+    # (第三關可以暫時移除或照此格式修改)
 }
 
 WEAPON_DATA = {
@@ -94,9 +80,9 @@ WEAPON_DATA = {
         'size': (70, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 50,
-        'cooldown': 10,
+        'cooldown': 0.1,
         'projectile_class_name': 'BoardProjectile',
-        'cooldown_type': 'on_return' # 射出即冷卻
+        'cooldown_type': 'on_fire' # 射出即冷卻
     },
     3: {
         'id': 'bsword_heavy', # 修正了重複的ID

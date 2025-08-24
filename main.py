@@ -15,11 +15,11 @@ class Game:
         pygame.init()
         # ↓↓↓ 【【【修正處：移除這一行】】】 ↓↓↓
         # save_manager.load_game() # 遊戲啟動時不應該載入任何存檔
-        
+        pygame.key.stop_text_input()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Coast Guardian")
 
-        # --- 資源載入 ---
+        # --- 資源載入 --- 
         print("--- Loading Assets ---")
         # (後續所有資源載入的程式碼保持不變)
         assets.load_font('title', "NotoSerifTC-Medium.ttf", TITLE_FONT_SIZE)
@@ -36,6 +36,7 @@ class Game:
             level_id = level_data['id']
             if 'background_image' in level_data:
                 assets.load_image(f'{level_id}_bg', level_data['background_image'])
+            assets.load_image(f'protect_level{level_num}', f'assets/images/protect_level{level_num}.png')
             if 'walkable_mask_image' in level_data:
                 assets.load_image(f'{level_id}_walkable_mask', level_data['walkable_mask_image'])
         assets.load_image('player', 'assets/images/player.png')

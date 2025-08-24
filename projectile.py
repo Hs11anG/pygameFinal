@@ -59,6 +59,7 @@ class BoardProjectile(Projectile):
     # (這個類別的程式碼完全不需要修改)
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
+        
         self.original_image = assets.get_image(self.data['id'])
         size_multiplier = self.data['projectile_size_multiplier']
         self.size = (int(self.data['size'][0] * size_multiplier), int(self.data['size'][1] * size_multiplier))

@@ -80,7 +80,7 @@ WEAPON_DATA = {
         'size': (70, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 50,
-        'cooldown': 0.1,
+        'cooldown': 5,
         'projectile_class_name': 'BoardProjectile',
         'cooldown_type': 'on_fire' # 射出即冷卻
     },

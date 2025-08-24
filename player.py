@@ -75,16 +75,47 @@ class Player(pygame.sprite.Sprite):
         if mouse_buttons[0]: # 左鍵
             self.shoot(pygame.mouse.get_pos(), projectile_group)
 
+    # --- ↓↓↓ 以下是這次修改的函式 ↓↓↓ ---
     def draw_ui(self, screen):
-        """在頭頂繪製當前武器圖標和名稱"""
+        """在頭頂繪製當前武器圖標、名稱和冷卻時間"""
         weapon_data = WEAPON_DATA[self.current_weapon_type]
         
+        # 繪製圖標
         icon_image = assets.get_image(weapon_data['id'])
         icon_image = pygame.transform.scale(icon_image, (40, 40))
-        icon_rect = icon_image.get_rect(midbottom=self.rect.midtop)
+        # 稍微向上調整UI的整體位置
+        icon_rect = icon_image.get_rect(midbottom=self.rect.midtop, y=self.rect.top - 20)
         screen.blit(icon_image, icon_rect)
 
+        # 準備字體
         font = assets.get_font('weapon_ui')
-        text_surf = font.render(weapon_data['name'], True, WHITE)
-        text_rect = text_surf.get_rect(midbottom=icon_rect.midtop)
-        screen.blit(text_surf, text_rect)
+        if not font: return
+
+        # 繪製武器名稱
+        name_surf = font.render(weapon_data['name'], True, WHITE)
+        name_rect = name_surf.get_rect(midbottom=icon_rect.midtop, y=icon_rect.top - 10)
+        screen.blit(name_surf, name_rect)
+
+        # --- 新增的冷卻時間邏輯 ---
+        now = pygame.time.get_ticks()
+        cooldown = weapon_data['cooldown'] * 1000
+        last_shot = self.last_shot_time.get(self.current_weapon_type, 0)
+        elapsed_since_last_shot = now - last_shot
+
+        # 如果還在冷卻中，才顯示文字
+        if elapsed_since_last_shot < cooldown:
+            remaining_cd = (cooldown - elapsed_since_last_shot) / 1000
+            cd_text = f"{remaining_cd:.1f}s"
+            
+            # 使用高亮顏色以區分
+            cd_surf = font.render(cd_text, True, HOVER_COLOR) 
+            cd_rect = cd_surf.get_rect(midbottom=name_rect.midtop, y=name_rect.top - 20 )
+            
+            # 為了讓數字更清晰，在文字底下加一個小背景
+            bg_rect = cd_rect.inflate(8, 4) # 比文字大一點
+            pygame.draw.rect(screen, UI_BG_COLOR, bg_rect, border_radius=3)
+            pygame.draw.rect(screen, UI_BORDER_COLOR, bg_rect, width=1, border_radius=3)
+            
+            # 最後才把文字畫上去
+            screen.blit(cd_surf, cd_rect)
+    # --- ↑↑↑ 以上是這次修改的函式 ↑↑↑ ---

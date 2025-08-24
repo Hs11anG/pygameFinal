@@ -37,7 +37,7 @@ LEVELS = {
         'offsetx' : 20, 
         'offsety' : 20,
         'playersize': (30, 60),
-        'duration': 30,
+        'duration': 60,
         'spawns': {
             'gbird_alpha': 30,
             'gbird_beta': 10,

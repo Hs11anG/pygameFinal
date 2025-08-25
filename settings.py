@@ -13,21 +13,15 @@ LEVELS = {
         'id': 'pier_assault',
         'name': 'pier_assault',
         'background_image': 'assets/images/pier_background.png',
-        # 【修改】移除 walkable_mask_image，遊戲場景不再需要
-        
-        # 【修改】舊的 spawn_point 現在是保護目標的位置
         'protection_point': (280, 350), 
-        # 【修改】玩家出生點改為舊武器的位置
         'player_spawn_point': (380, 400),
-        
         'offsetx' : 20, 
         'offsety' : 20,
         'playersize': (30, 60),
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10 },
         'victory_monster_limit': 20,
-        # 【修改】移除 weapon_spawns，武器改由玩家持有
-        'unlocked_weapons': [1, 2] # <--- 【新增】定義本關可用的武器 ID
+        'unlocked_weapons': [1, 2]
     },
     2: {
         'id': 'pier_assault_2',
@@ -41,7 +35,7 @@ LEVELS = {
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
         'victory_monster_limit': 20,
-        'unlocked_weapons': [1, 2, 3] # 第二關解鎖所有武器
+        'unlocked_weapons': [1, 2, 3]
     },
     3: {
         'id': 'pier_assault_2',
@@ -55,9 +49,8 @@ LEVELS = {
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
         'victory_monster_limit': 20,
-        'unlocked_weapons': [1, 2, 3] # 第二關解鎖所有武器
+        'unlocked_weapons': [1, 2, 3]
     }
-    # (第三關可以暫時移除或照此格式修改)
 }
 
 WEAPON_DATA = {
@@ -68,10 +61,9 @@ WEAPON_DATA = {
         'size': (13, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 30,
-        'cooldown': 0.1,
-        # ↓↓↓ 【【【核心修正：將 projectile_class 改為 projectile_class_name】】】 ↓↓↓
+        'cooldown': 1,
         'projectile_class_name': 'BswordProjectile' ,
-        'cooldown_type': 'on_fire' # 射出即冷卻
+        'cooldown_type': 'on_fire'
     },
     2: {
         'id': 'board', 
@@ -80,12 +72,12 @@ WEAPON_DATA = {
         'size': (70, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 50,
-        'cooldown': 5,
+        'cooldown': 1,
         'projectile_class_name': 'BoardProjectile',
-        'cooldown_type': 'on_fire' # 射出即冷卻
+        'cooldown_type': 'on_fire'
     },
     3: {
-        'id': 'bsword_heavy', # 修正了重複的ID
+        'id': 'bsword_heavy',
         'name': '竹簡劍-HEAVY',
         'image_path': 'assets/images/bsword.png',
         'size': (100, 100),
@@ -93,11 +85,10 @@ WEAPON_DATA = {
         'damage': 100,
         'cooldown': 3.0,
         'projectile_class_name': 'BswordProjectile',
-        'cooldown_type': 'on_fire' # 射出即冷卻
+        'cooldown_type': 'on_fire'
     }
 }
 
-# (MONSTER_DATA, 顏色, 字體設定不變)
 MONSTER_DATA = {
     'gbird_alpha': { 'name': 'G-Bird Alpha', 'health': 30, 'spawn_interval': 3000, 'escape_time': 15000, 'speed': 2, 'escape_speed_multiplier': 1.5, 'image_path': 'assets/images/gbird_alpha.png', 'debuff': None, 'sizex' :50, 'sizey' :50 },
     'gbird_beta': { 'name': 'G-Bird Beta', 'health': 60, 'spawn_interval': 5000, 'escape_time': 20000, 'speed': 1, 'escape_speed_multiplier': 1.5, 'image_path': 'assets/images/gbird_beta.png', 'debuff': None, 'sizex' :50, 'sizey' :50 },
@@ -112,3 +103,19 @@ TITLE_FONT_SIZE = 96
 MENU_FONT_SIZE = 64
 UI_BG_COLOR = (20, 20, 20)
 UI_BORDER_COLOR = (180, 180, 180)
+
+# --- ↓↓↓ 【【【本次新增：Rogue-like 升級選項】】】 ↓↓↓ ---
+UPGRADE_DATA = {
+    # 技能強化
+    'skill_duration_up': {'name': '路牌猛擊', 'description': '技能持續時間 +2 秒', 'type': 'add', 'stat': 'skill_1_duration', 'value': 2000},
+    'skill_cooldown_down': {'name': '精神時光', 'description': '技能冷卻時間 -10%', 'type': 'multiply', 'stat': 'skill_1_cooldown', 'value': 0.9},
+    
+    # 玩家屬性強化
+    'player_speed_up': {'name': '身輕如燕', 'description': '移動速度 +15%', 'type': 'multiply', 'stat': 'speed', 'value': 1.15},
+    
+    # 武器強化
+    'bsword_damage_up': {'name': '打磨竹簡', 'description': '竹簡劍傷害 +5', 'type': 'add', 'weapon_id': 1, 'stat': 'damage', 'value': 5},
+    'board_damage_up': {'name': '正義鐵拳', 'description': '路牌傷害 +10', 'type': 'add', 'weapon_id': 2, 'stat': 'damage', 'value': 10},
+    'global_cooldown_down': {'name': '神速', 'description': '所有武器攻擊冷卻 -10%', 'type': 'multiply', 'stat': 'global_cooldown', 'value': 0.9}
+}
+# --- ↑↑↑ 【【【本次新增：Rogue-like 升級選項】】】 ↑↑↑ ---

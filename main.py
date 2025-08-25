@@ -2,72 +2,92 @@
 import pygame
 from settings import *
 from scene_manager import SceneManager
+from asset_manager import assets
+
+# 【【【修正：引入所有場景類別】】】
 from scenes.main_menu_scene import MainMenuScene
 from scenes.gameplay_scene import GameplayScene
-from scenes.end_level_scene import EndLevelScene
 from scenes.level_select_scene import LevelSelectScene
+from scenes.end_level_scene import EndLevelScene
 from scenes.save_slot_scene import SaveSlotScene
-from asset_manager import assets
-from save_manager import save_manager
+
 
 class Game:
+    """
+    遊戲主迴圈與場景管理
+    """
+
     def __init__(self):
         pygame.init()
-        # ↓↓↓ 【【【修正處：移除這一行】】】 ↓↓↓
-        # save_manager.load_game() # 遊戲啟動時不應該載入任何存檔
-        pygame.key.stop_text_input()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Coast Guardian")
+        pygame.display.set_caption("府 城 淨 化 錄")
+        self.clock = pygame.time.Clock()
 
-        # --- 資源載入 --- 
-        print("--- Loading Assets ---")
-        # (後續所有資源載入的程式碼保持不變)
-        assets.load_font('title', "NotoSerifTC-Medium.ttf", TITLE_FONT_SIZE)
-        assets.load_font('menu', "NotoSerifTC-Medium.ttf", MENU_FONT_SIZE)
-        assets.load_font('ui',  "NotoSerifTC-Medium.ttf", 36)
-        assets.load_font('weapon_ui', "NotoSerifTC-Medium.ttf", 14)
+        # 【【【修正：載入資源】】】
+        # 遊戲開始前，先載入所有資源
+        self.load_assets()
+
+        # 【【【修正：建立場景管理器】】】
+        # 建立所有場景的實例
+        scenes = {
+            'main_menu': MainMenuScene(None),
+            'gameplay': GameplayScene(None),
+            'level_select': LevelSelectScene(None),
+            'end_level': EndLevelScene(None),
+            'save_slot': SaveSlotScene(None)
+        }
+        
+        # --- ↓↓↓ 【【【本次修改】】】 ↓↓↓ ---
+        # 將參數的順序對調，使其符合 SceneManager 的 __init__ 定義
+        self.scene_manager = SceneManager('main_menu', scenes)
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
+
+        # 將場景管理器的實例回傳給各個場景，以便他們可以呼叫 switch_to_scene
+        for scene in scenes.values():
+            scene.manager = self.scene_manager
+
+    def load_assets(self):
+        """
+        載入所有遊戲資源
+        """
+        # 載入圖片
         assets.load_image('main_menu_bg', 'assets/images/GameStart.png')
         assets.load_image('level_select_bg', 'assets/images/level_choose_bg.png')
         assets.load_image('level_select_mask', 'assets/images/level_choose_mask.png')
-        assets.load_image('level1', 'assets/images/level1.png')
-        assets.load_image('level2', 'assets/images/level2.png')
-        assets.load_image('level3', 'assets/images/level3.png')
-        for level_num, level_data in LEVELS.items():
-            level_id = level_data['id']
-            if 'background_image' in level_data:
-                assets.load_image(f'{level_id}_bg', level_data['background_image'])
-            assets.load_image(f'protect_level{level_num}', f'assets/images/protect_level{level_num}.png')
-            if 'walkable_mask_image' in level_data:
-                assets.load_image(f'{level_id}_walkable_mask', level_data['walkable_mask_image'])
+        assets.load_image('pier_assault_bg', 'assets/images/pier_background.png')
+        assets.load_image('pier_assault_2_bg', 'assets/images/pier2_background.png')
         assets.load_image('player', 'assets/images/player.png')
-        for monster_type, monster_data in MONSTER_DATA.items():
-            assets.load_image(monster_type, monster_data['image_path'])
+        assets.load_image('bsword', 'assets/images/bsword.png')
+        assets.load_image('board', 'assets/images/board.png')
+        assets.load_image('bsword_heavy', 'assets/images/bsword.png') # 重型竹簡劍暫用同個圖
+        assets.load_image('gbird_alpha', 'assets/images/gbird_alpha.png')
+        assets.load_image('gbird_beta', 'assets/images/gbird_beta.png')
+        assets.load_image('solarpanel_beta', 'assets/images/solarPanel_beta.png')
+        assets.load_image('protect_level1', 'assets/images/protect_level1.png')
+        assets.load_image('protect_level2', 'assets/images/protect_level2.png')
+        assets.load_image('protect_level3', 'assets/images/protect_level3.png')
+        assets.load_image('level1_icon', 'assets/images/level1.png')
+        assets.load_image('level2_icon', 'assets/images/level2.png')
+        assets.load_image('level3_icon', 'assets/images/level3.png')
         assets.load_image('exclamation', 'assets/images/exclamation.png')
-        for weapon_num, weapon_data in WEAPON_DATA.items():
-            assets.load_image(weapon_data['id'], weapon_data['image_path'])
-        print("--- Asset Loading Complete ---")
+        
+        # 載入字體
+        assets.load_font('title', 'NotoSerifTC-ExtraBold.ttf', TITLE_FONT_SIZE)
+        assets.load_font('menu', 'NotoSerifTC-Medium.ttf', MENU_FONT_SIZE)
+        assets.load_font('ui', 'BoutiqueBitmap9x9_Bold_1.9.ttf', 40)
+        assets.load_font('weapon_ui', 'BoutiqueBitmap9x9_Bold_1.9.ttf', 24)
 
-        self.clock = pygame.time.Clock()
-        self.running = True
-
-        scenes = {
-            'main_menu': MainMenuScene,
-            'save_slot': SaveSlotScene,
-            'level_select': LevelSelectScene,
-            'gameplay': GameplayScene,
-            'end_level': EndLevelScene
-        }
-        self.scene_manager = SceneManager(scenes, 'main_menu')
 
     def run(self):
-        while self.running:
-            self.clock.tick(FPS)
+        while True:
             events = pygame.event.get()
+            
             self.scene_manager.handle_events(events)
             self.scene_manager.update()
             self.scene_manager.draw(self.screen)
+            
             pygame.display.flip()
-        pygame.quit()
+            self.clock.tick(FPS)
 
 if __name__ == '__main__':
     game = Game()

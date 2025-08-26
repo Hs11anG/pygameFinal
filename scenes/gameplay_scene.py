@@ -35,9 +35,7 @@ class GameplayScene(Scene):
         self.current_upgrade_choices = []
         self.upgrade_choice_rects = []
         
-        # --- ↓↓↓ 【【【本次新增】】】 ↓↓↓ ---
         self.pause_start_time = 0 
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def load_level(self, level_number):
         self.current_level = level_number
@@ -56,9 +54,7 @@ class GameplayScene(Scene):
             self.manager.start_new_run()
             self.player = self.manager.get_player()
 
-        # --- ↓↓↓ 【【【在這裡重置技能冷卻】】】 ↓↓↓ ---
         self.player.reset_cooldowns()
-        # --- ↑↑↑ 【【【在這裡重置技能冷卻】】】 ↑↑↑ ---
 
         spawn_point = level_data['player_spawn_point']
         self.player.rect.midbottom = spawn_point
@@ -94,12 +90,9 @@ class GameplayScene(Scene):
                 if event.button == 1:
                     for i, rect in enumerate(self.upgrade_choice_rects):
                         if rect.collidepoint(event.pos):
-                            # --- ↓↓↓ 【【【本次修改】】】 ↓↓↓ ---
-                            # 在恢復遊戲前，計算暫停時長並校準計時器
                             pause_duration = pygame.time.get_ticks() - self.pause_start_time
                             self.player.adjust_timers_for_pause(pause_duration)
-                            self.level_start_time += pause_duration # 關卡總時間也需校準
-                            # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
+                            self.level_start_time += pause_duration
 
                             chosen_upgrade = self.current_upgrade_choices[i]
                             self.player.apply_upgrade(chosen_upgrade)
@@ -110,7 +103,6 @@ class GameplayScene(Scene):
                 
     def check_collisions(self):
         if not self.monster_manager: return
-        now = pygame.time.get_ticks()
 
         possible_hits = pygame.sprite.groupcollide(
             self.projectile_group, 
@@ -120,12 +112,13 @@ class GameplayScene(Scene):
         for projectile, monsters_hit in possible_hits.items():
             for monster in monsters_hit:
                 if pygame.sprite.collide_mask(projectile, monster):
-                    monster.health -= projectile.damage
+                    # 【【【BUG修正：檢查 take_damage 的回傳值】】】
+                    just_died = monster.take_damage(projectile.damage)
+                    if just_died:
+                        self.kill_count += 1
+                    
                     if not isinstance(projectile, BoardProjectile):
                          projectile.kill()
-                    if monster.health <= 0:
-                        monster.kill()
-                        self.kill_count += 1
                     break
 
         if self.protection_target:
@@ -136,8 +129,9 @@ class GameplayScene(Scene):
                 pygame.sprite.collide_mask
             )
             for monster in hits:
-                self.protection_target.take_damage(10)
-                monster.knockback()
+                if monster.state == 'alive': 
+                    self.protection_target.take_damage(10)
+                    monster.knockback()
 
     def check_game_over(self):
         if self.protection_target and self.protection_target.current_health <= 0:
@@ -149,11 +143,10 @@ class GameplayScene(Scene):
 
         elapsed_time = pygame.time.get_ticks() - self.level_start_time
         if elapsed_time > self.level_duration:
-            remaining_monsters = len(self.monster_manager.monsters) if self.monster_manager is not None else 0
-            total_failed_monsters = self.escaped_monsters_count + remaining_monsters
+            remaining_monsters = sum(1 for m in self.monster_manager.monsters if m.state == 'alive') if self.monster_manager else 0
             
             end_scene = self.manager.scenes['end_level']
-            if total_failed_monsters < self.victory_monster_limit:
+            if remaining_monsters < self.victory_monster_limit:
                 self.game_state = 'victory'
                 save_manager.unlock_next_level(self.current_level)
                 save_manager.save_game(self.player)
@@ -166,12 +159,9 @@ class GameplayScene(Scene):
 
     def trigger_upgrade_choice(self):
         self.game_state = 'choosing_upgrade'
-        self.kill_count = 0
+        self.kill_count -= self.kills_for_upgrade
         
-        # --- ↓↓↓ 【【【本次修改】】】 ↓↓↓ ---
-        # 記錄暫停開始的時間
         self.pause_start_time = pygame.time.get_ticks()
-        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         available_upgrades = list(UPGRADE_DATA.keys())
         k = min(3, len(available_upgrades))
@@ -202,7 +192,7 @@ class GameplayScene(Scene):
         time_surf = font.render(time_text, True, WHITE)
         screen.blit(time_surf, (SCREEN_WIDTH - time_surf.get_width() - 20, 20))
         
-        kills_text = f"Kills: {self.kill_count} / {self.kills_for_upgrade}"
+        kills_text = f"Kills: {self.kill_count}"
         kills_surf = font.render(kills_text, True, WHITE)
         screen.blit(kills_surf, (SCREEN_WIDTH - kills_surf.get_width() - 20, 60))
         
@@ -258,7 +248,7 @@ class GameplayScene(Scene):
         icon_image = pygame.transform.scale(icon_image, (50, 50))
         
         ui_base_x = SCREEN_WIDTH // 2
-        ui_base_y = SCREEN_HEIGHT - 40
+        ui_base_y = SCREEN_HEIGHT - 80
         icon_rect = icon_image.get_rect(center=(ui_base_x, ui_base_y))
         
         text_below = ""

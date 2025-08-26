@@ -162,7 +162,7 @@ class Player(pygame.sprite.Sprite):
             text = f"{remaining_duration:.1f}s"
             color = (255, 255, 0) 
             text_surf = font.render(text, True, color)
-            text_rect = text_surf.get_rect(midbottom=self.rect.midtop, y=self.rect.top - 10)
+            text_rect = text_surf.get_rect(midbottom=self.rect.midtop, y=self.rect.top - 40)
             bg_rect = text_rect.inflate(8, 4)
             pygame.draw.rect(screen, UI_BG_COLOR, bg_rect, border_radius=3)
             pygame.draw.rect(screen, UI_BORDER_COLOR, bg_rect, width=1, border_radius=3)

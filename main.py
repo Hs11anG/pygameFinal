@@ -3,6 +3,7 @@ import pygame
 from settings import *
 from scene_manager import SceneManager
 from asset_manager import assets
+from settings import MONSTER_DATA
 
 # 【【【修正：引入所有場景類別】】】
 from scenes.main_menu_scene import MainMenuScene
@@ -70,6 +71,20 @@ class Game:
         assets.load_image('level2_icon', 'assets/images/level2.png')
         assets.load_image('level3_icon', 'assets/images/level3.png')
         assets.load_image('exclamation', 'assets/images/exclamation.png')
+        
+        # 載入怪物動畫
+        for monster_id, data in MONSTER_DATA.items():
+            folder_name = monster_id
+            # 載入移動動畫
+            if 'animation_frames' in data:
+                for frame_name in data['animation_frames']:
+                    path = f'assets/images/{folder_name}/{frame_name}.png'
+                    assets.load_image(frame_name, path)
+            # 載入死亡動畫
+            if 'death_frames' in data:
+                for frame_name in data['death_frames']:
+                    path = f'assets/images/{folder_name}/{frame_name}.png'
+                    assets.load_image(frame_name, path)
         
         # 載入字體
         assets.load_font('title', 'NotoSerifTC-ExtraBold.ttf', TITLE_FONT_SIZE)

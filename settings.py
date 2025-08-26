@@ -61,7 +61,7 @@ WEAPON_DATA = {
         'size': (13, 70),
         'projectile_size_multiplier': 0.9,
         'damage': 30,
-        'cooldown': 1,
+        'cooldown': 0.8,
         'projectile_class_name': 'BswordProjectile' ,
         'cooldown_type': 'on_fire'
     },
@@ -70,9 +70,9 @@ WEAPON_DATA = {
         'name': '轉型正義',
         'image_path': 'assets/images/board.png',
         'size': (70, 70),
-        'projectile_size_multiplier': 0.9,
+        'projectile_size_multiplier': 1.2,
         'damage': 50,
-        'cooldown': 1,
+        'cooldown': 0.9,
         'projectile_class_name': 'BoardProjectile',
         'cooldown_type': 'on_fire'
     },
@@ -90,9 +90,48 @@ WEAPON_DATA = {
 }
 
 MONSTER_DATA = {
-    'gbird_alpha': { 'name': 'G-Bird Alpha', 'health': 30, 'spawn_interval': 3000, 'escape_time': 15000, 'speed': 2, 'escape_speed_multiplier': 1.5, 'image_path': 'assets/images/gbird_alpha.png', 'debuff': None, 'sizex' :50, 'sizey' :50 },
-    'gbird_beta': { 'name': 'G-Bird Beta', 'health': 60, 'spawn_interval': 5000, 'escape_time': 20000, 'speed': 1, 'escape_speed_multiplier': 1.5, 'image_path': 'assets/images/gbird_beta.png', 'debuff': None, 'sizex' :50, 'sizey' :50 },
-    'solarpanel_beta': { 'name': 'Solarpanel_beta', 'health': 100, 'spawn_interval': 5000, 'escape_time': 20000, 'speed': 1, 'escape_speed_multiplier': 1.5, 'image_path': 'assets/images/solarpanel_beta.png', 'debuff': None, 'sizex' :50, 'sizey' :50 }
+    'gbird_alpha': { 
+        'name': 'G-Bird Alpha', 
+        'health': 30, 
+        'spawn_interval': 3000, 
+        'escape_time': 15000, 
+        'speed': 2, 
+        'escape_speed_multiplier': 1.5, 
+        'image_path': 'assets/images/gbird_alpha.png', 
+        'debuff': None, 
+        'sizex' :50, 
+        'sizey' :50,
+        'animation_frames': ['gbird_alpha_a1', 'gbird_alpha_a2', 'gbird_alpha_a3', 'gbird_alpha_a4'],
+        'death_frames': ['gbird_alpha_d1', 'gbird_alpha_d2']
+    },
+    'gbird_beta': { 
+        'name': 'G-Bird Beta', 
+        'health': 60, 
+        'spawn_interval': 5000, 
+        'escape_time': 20000, 
+        'speed': 1, 
+        'escape_speed_multiplier': 1.5, 
+        'image_path': 'assets/images/gbird_beta.png', 
+        'debuff': None, 
+        'sizex' :50, 
+        'sizey' :50,
+        'animation_frames': ['gbird_beta_a1', 'gbird_beta_a2', 'gbird_beta_a3', 'gbird_beta_a4'],
+        'death_frames': ['gbird_beta_d1', 'gbird_beta_d2']
+    },
+    'solarpanel_beta': { 
+        'name': 'Solarpanel_beta', 
+        'health': 100, 
+        'spawn_interval': 5000, 
+        'escape_time': 20000, 
+        'speed': 1, 
+        'escape_speed_multiplier': 1.5, 
+        'image_path': 'assets/images/solarpanel_beta.png', 
+        'debuff': None, 
+        'sizex' :50, 
+        'sizey' :50,
+        'animation_frames': ['solarpanel_beta_a1', 'solarpanel_beta_a2', 'solarpanel_beta_a3', 'solarpanel_beta_a4'],
+        'death_frames': ['solarpanel_beta_d1', 'solarpanel_beta_d2']
+    }
 }
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -104,18 +143,11 @@ MENU_FONT_SIZE = 64
 UI_BG_COLOR = (20, 20, 20)
 UI_BORDER_COLOR = (180, 180, 180)
 
-# --- ↓↓↓ 【【【本次新增：Rogue-like 升級選項】】】 ↓↓↓ ---
 UPGRADE_DATA = {
-    # 技能強化
     'skill_duration_up': {'name': '路牌猛擊', 'description': '技能持續時間 +2 秒', 'type': 'add', 'stat': 'skill_1_duration', 'value': 2000},
     'skill_cooldown_down': {'name': '精神時光', 'description': '技能冷卻時間 -10%', 'type': 'multiply', 'stat': 'skill_1_cooldown', 'value': 0.9},
-    
-    # 玩家屬性強化
     'player_speed_up': {'name': '身輕如燕', 'description': '移動速度 +15%', 'type': 'multiply', 'stat': 'speed', 'value': 1.15},
-    
-    # 武器強化
     'bsword_damage_up': {'name': '打磨竹簡', 'description': '竹簡劍傷害 +5', 'type': 'add', 'weapon_id': 1, 'stat': 'damage', 'value': 5},
     'board_damage_up': {'name': '正義鐵拳', 'description': '路牌傷害 +10', 'type': 'add', 'weapon_id': 2, 'stat': 'damage', 'value': 10},
     'global_cooldown_down': {'name': '神速', 'description': '所有武器攻擊冷卻 -10%', 'type': 'multiply', 'stat': 'global_cooldown', 'value': 0.9}
 }
-# --- ↑↑↑ 【【【本次新增：Rogue-like 升級選項】】】 ↑↑↑ ---

@@ -10,6 +10,9 @@ from monster_manager import MonsterManager
 from save_manager import save_manager
 from projectile import BswordProjectile, BoardProjectile
 from protection_target import ProtectionTarget
+# --- ↓↓↓ 【【【本次新增：引入新技能類別】】】 ↓↓↓ ---
+from skill_effects import RescueSkill
+# --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
 class GameplayScene(Scene):
     def __init__(self, manager):
@@ -20,6 +23,9 @@ class GameplayScene(Scene):
         self.target_group = pygame.sprite.GroupSingle()
         self.projectile_group = pygame.sprite.Group()
         self.monster_manager = None
+        # --- ↓↓↓ 【【【本次新增：技能3專用的 Sprite Group】】】 ↓↓↓ ---
+        self.rescue_skill_group = pygame.sprite.GroupSingle()
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         
         self.player = None
         self.protection_target = None
@@ -53,6 +59,9 @@ class GameplayScene(Scene):
         self.player_group.empty()
         self.target_group.empty()
         self.projectile_group.empty()
+        # --- ↓↓↓ 【【【本次新增：清空技能3 Group】】】 ↓↓↓ ---
+        self.rescue_skill_group.empty()
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         
         self.player = self.manager.get_player()
         if not self.player:
@@ -88,6 +97,18 @@ class GameplayScene(Scene):
         
         self.show_victory_message = False
         self.victory_message_start_time = 0
+        
+    # --- ↓↓↓ 【【【本次新增：產生技能3實體的方法】】】 ↓↓↓ ---
+    def spawn_rescue_skill(self):
+        # 檢查畫面上是否已經有救援車輛了，防止重複施放
+        if not self.rescue_skill_group.sprite:
+            # 讓車輛與保護目標等高
+            y_pos = self.protection_target.rect.centery
+            new_skill_effect = RescueSkill(y_pos)
+            self.rescue_skill_group.add(new_skill_effect)
+            return True # 回傳 True 表示成功產生
+        return False # 回傳 False 表示畫面上已有實體，產生失敗
+    # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def handle_events(self, events):
         self.events = events
@@ -116,6 +137,35 @@ class GameplayScene(Scene):
     def check_collisions(self):
         if not self.monster_manager: return
 
+        # --- ↓↓↓ 【【【本次新增：技能3與怪物的碰撞偵測】】】 ↓↓↓ ---
+        if self.rescue_skill_group.sprite:
+            rescue_skill = self.rescue_skill_group.sprite
+            
+            # 使用一個自訂的回呼函式來做 mask perfect collision
+            def check_fire_collision(skill_sprite, monster_sprite):
+                # 計算兩個 mask 的相對偏移
+                offset = (monster_sprite.rect.x - skill_sprite.fire_rect.x, 
+                          monster_sprite.rect.y - skill_sprite.fire_rect.y)
+                # 檢查怪物的 mask 是否與火焰的 mask 重疊
+                monster_mask = pygame.mask.from_surface(monster_sprite.image)
+                return skill_sprite.fire_mask.overlap(monster_mask, offset)
+
+            # 找出所有與火焰碰撞的怪物
+            monsters_hit = pygame.sprite.spritecollide(
+                rescue_skill, 
+                self.monster_manager.monsters, 
+                False, # 不要自動刪除怪物
+                check_fire_collision
+            )
+            
+            for monster in monsters_hit:
+                if monster.state == 'alive':
+                    # 直接呼叫 die() 來觸發死亡動畫並計入擊殺
+                    if monster.take_damage(monster.max_health): # 用最大血量確保秒殺
+                        self.kill_count += 1
+                        self.level_total_kills += 1
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+
         possible_hits = pygame.sprite.groupcollide(
             self.projectile_group, 
             self.monster_manager.monsters, 
@@ -123,27 +173,20 @@ class GameplayScene(Scene):
         )
         for projectile, monsters_hit in possible_hits.items():
             for monster in monsters_hit:
-                # --- ↓↓↓ 【【【BUG修正：核心邏輯，檢查是否已命中】】】 ↓↓↓ ---
-                # 檢查1: 真的有碰撞到 (mask)
-                # 檢查2: 這個怪物還沒被這個飛行物打過
                 if pygame.sprite.collide_mask(projectile, monster) and monster not in projectile.hit_monsters:
                     just_died = monster.take_damage(projectile.damage)
                     if just_died:
                         self.kill_count += 1
                         self.level_total_kills += 1
                     
-                    # 將怪物加入已命中列表，確保只造成一次傷害
                     projectile.hit_monsters.add(monster)
                     
-                    # 判斷飛行物是否要消失
                     is_piercing_bsword = isinstance(projectile, BswordProjectile) and projectile.piercing
                     if not isinstance(projectile, BoardProjectile) and not is_piercing_bsword:
                          projectile.kill()
                     
-                    # 對於非穿透武器，打到一個就跳出內層迴圈
                     if not is_piercing_bsword:
                         break 
-                # --- ↑↑↑ 【【【BUG修正】】】 ↑↑↑ ---
 
         if self.protection_target:
             hits = pygame.sprite.spritecollide(
@@ -194,10 +237,15 @@ class GameplayScene(Scene):
         if self.game_state == 'playing':
             keys = pygame.key.get_pressed()
             if self.player:
-                self.player.update(keys, self.events, self.projectile_group)
+                # --- ↓↓↓ 【【【本次修改：傳入 gameplay_scene 給 player】】】 ↓↓↓ ---
+                self.player.update(keys, self.events, self, self.projectile_group)
+                # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
             if self.monster_manager:
                 self.monster_manager.update()
             self.projectile_group.update()
+            # --- ↓↓↓ 【【【本次新增：更新技能3】】】 ↓↓↓ ---
+            self.rescue_skill_group.update()
+            # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
             self.check_collisions()
             self.check_game_over()
             if self.kill_count >= self.kills_for_upgrade:
@@ -299,6 +347,7 @@ class GameplayScene(Scene):
     def draw_skill_ui(self, screen):
         if not self.player: return
         
+        # --- ↓↓↓ 【【【本次修改：調整UI位置，為技能3留出空間】】】 ↓↓↓ ---
         self.draw_single_skill(
             screen, 
             key_text='1', 
@@ -307,7 +356,7 @@ class GameplayScene(Scene):
             cooldown_start_time=self.player.skill_1_cooldown_start_time,
             base_cooldown=self.player.base_skill_1_cooldown,
             cooldown_multiplier=self.player.skill_cooldown_multiplier,
-            position_offset=-60
+            position_offset=-90 # 原為 -60
         )
         
         if save_manager.is_level_unlocked(2):
@@ -319,9 +368,25 @@ class GameplayScene(Scene):
                 cooldown_start_time=self.player.skill_2_cooldown_start_time,
                 base_cooldown=self.player.base_skill_2_cooldown,
                 cooldown_multiplier=self.player.skill_cooldown_multiplier,
-                position_offset=60,
+                position_offset=0, # 原為 60
                 active_color=(0, 255, 255)
             )
+        
+        # --- ↓↓↓ 【【【本次新增：繪製技能3的UI】】】 ↓↓↓ ---
+        # 條件：完成第 2 關 (即解鎖第 3 關)
+        if save_manager.is_level_unlocked(3):
+            self.draw_single_skill(
+                screen, 
+                key_text='3', 
+                skill_icon_id='skill3_icon', 
+                skill_active=False, # 此技能為瞬發，沒有持續啟用狀態
+                cooldown_start_time=self.player.skill_3_cooldown_start_time,
+                base_cooldown=self.player.base_skill_3_cooldown,
+                cooldown_multiplier=self.player.skill_cooldown_multiplier,
+                position_offset=90, # 新增的位置
+                active_color=(255, 100, 0) # 給個橘紅色
+            )
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def draw_single_skill(self, screen, key_text, skill_icon_id, skill_active, cooldown_start_time, base_cooldown, cooldown_multiplier, position_offset, active_color=(255, 255, 0)):
         font = assets.get_font('ui')
@@ -377,6 +442,13 @@ class GameplayScene(Scene):
         if self.monster_manager:
             self.monster_manager.draw(screen)
         self.projectile_group.draw(screen)
+        # --- ↓↓↓ 【【【本次新增：繪製技能3】】】 ↓↓↓ ---
+        # 繪製車輛本體
+        self.rescue_skill_group.draw(screen)
+        # 繪製火焰特效
+        if self.rescue_skill_group.sprite:
+            self.rescue_skill_group.sprite.draw_fire(screen)
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         self.player_group.draw(screen)
 
         if self.player:

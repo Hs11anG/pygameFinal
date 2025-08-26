@@ -75,6 +75,12 @@ class Game:
         assets.load_image('skill1', 'assets/images/skill1.png')
         assets.load_image('skill2', 'assets/images/skill2.png')
         # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+        # --- ↓↓↓ 【【【本次新增：載入技能3相關圖片】】】 ↓↓↓ ---
+        assets.load_image('skill3_icon', 'assets/images/skill3_a1.png') # 暫用動畫影格當圖示
+        assets.load_image('skill3_a1', 'assets/images/skill3_a1.png')
+        assets.load_image('skill3_a2', 'assets/images/skill3_a2.png')
+        assets.load_image('skill3_damage', 'assets/images/skill3_damage.png')
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         
         # 載入怪物動畫
         for monster_id, data in MONSTER_DATA.items():

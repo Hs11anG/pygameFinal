@@ -4,6 +4,9 @@ from asset_manager import assets
 from settings import *
 from weapon import PROJECTILE_CLASSES
 from projectile import BswordProjectile
+# --- ↓↓↓ 【【【本次新增：引入存檔管理器】】】 ↓↓↓ ---
+from save_manager import save_manager
+# --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, start_pos, level_number):
@@ -19,6 +22,9 @@ class Player(pygame.sprite.Sprite):
         self.base_skill_1_cooldown = 10000
         self.base_skill_2_duration = 3000
         self.base_skill_2_cooldown = 12000
+        # --- ↓↓↓ 【【【本次新增：技能3冷卻時間】】】 ↓↓↓ ---
+        self.base_skill_3_cooldown = 45000 # 45秒
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
         self.speed_multiplier = 1.0
         self.skill_duration_bonus = 0
@@ -46,6 +52,9 @@ class Player(pygame.sprite.Sprite):
         
         self.skill_1_cooldown_start_time = now - (self.base_skill_1_cooldown * self.skill_cooldown_multiplier)
         self.skill_2_cooldown_start_time = now - (self.base_skill_2_cooldown * self.skill_cooldown_multiplier)
+        # --- ↓↓↓ 【【【本次新增：重置技能3冷卻】】】 ↓↓↓ ---
+        self.skill_3_cooldown_start_time = now - (self.base_skill_3_cooldown * self.skill_cooldown_multiplier)
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         self.last_shot_time = {}
 
         self.skill_1_active = False
@@ -63,6 +72,10 @@ class Player(pygame.sprite.Sprite):
              self.skill_1_cooldown_start_time += pause_duration
         if self.skill_2_cooldown_start_time != float('inf'):
              self.skill_2_cooldown_start_time += pause_duration
+        # --- ↓↓↓ 【【【本次新增：暫停時調整技能3冷卻】】】 ↓↓↓ ---
+        if self.skill_3_cooldown_start_time != float('inf'):
+             self.skill_3_cooldown_start_time += pause_duration
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
         for weapon_type in self.last_shot_time:
             self.last_shot_time[weapon_type] += pause_duration
@@ -170,11 +183,8 @@ class Player(pygame.sprite.Sprite):
                 projectile_group.add(new_projectile)
     
     def activate_skill_1(self):
-        # --- ↓↓↓ 【【【本次新增：檢查另一個技能是否已啟用】】】 ↓↓↓ ---
         if self.skill_2_active:
-            # print("技能 2 正在使用中，無法啟用技能 1！") # 可選：在控制台印出提示
             return
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         now = pygame.time.get_ticks()
         cooldown = self.base_skill_1_cooldown * self.skill_cooldown_multiplier
         if now - self.skill_1_cooldown_start_time >= cooldown:
@@ -184,11 +194,8 @@ class Player(pygame.sprite.Sprite):
             print("技能 1 已啟用: 轉型正義！")
 
     def activate_skill_2(self):
-        # --- ↓↓↓ 【【【本次新增：檢查另一個技能是否已啟用】】】 ↓↓↓ ---
         if self.skill_1_active:
-            # print("技能 1 正在使用中，無法啟用技能 2！") # 可選：在控制台印出提示
             return
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         now = pygame.time.get_ticks()
         cooldown = self.base_skill_2_cooldown * self.skill_cooldown_multiplier
         if now - self.skill_2_cooldown_start_time >= cooldown:
@@ -196,6 +203,27 @@ class Player(pygame.sprite.Sprite):
             self.skill_2_activation_time = now
             self.skill_2_cooldown_start_time = float('inf') 
             print("技能 2 已啟用: 融會貫通！")
+            
+    # --- ↓↓↓ 【【【本次新增：啟用技能3的方法】】】 ↓↓↓ ---
+    def activate_skill_3(self, gameplay_scene):
+        # 檢查是否有其他技能正在啟用
+        if self.skill_1_active or self.skill_2_active:
+            return
+            
+        # 檢查技能是否已解鎖 (完成第 2 關，意即可在第 3 關使用)
+        if not save_manager.is_level_unlocked(3):
+            return
+
+        now = pygame.time.get_ticks()
+        cooldown = self.base_skill_3_cooldown * self.skill_cooldown_multiplier
+        
+        # 檢查冷卻時間
+        if now - self.skill_3_cooldown_start_time >= cooldown:
+            # 呼叫 gameplay_scene 的方法來產生技能實體，如果成功才進入冷卻
+            if gameplay_scene.spawn_rescue_skill():
+                self.skill_3_cooldown_start_time = now
+                print("技能 3 已啟用: 搏命救援！")
+    # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def update_skills(self):
         now = pygame.time.get_ticks()
@@ -213,13 +241,19 @@ class Player(pygame.sprite.Sprite):
                 self.skill_2_cooldown_start_time = now
                 print("技能 2 持續時間結束，進入冷卻。")
 
-    def update(self, keys, events, projectile_group, mask=None):
+    # --- ↓↓↓ 【【【本次修改：update 的參數】】】 ↓↓↓ ---
+    def update(self, keys, events, gameplay_scene, projectile_group, mask=None):
+    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         self.move(keys, mask)
         
         if keys[pygame.K_1]:
             self.activate_skill_1()
         if keys[pygame.K_2]:
             self.activate_skill_2()
+        # --- ↓↓↓ 【【【本次新增：偵測技能3按鍵】】】 ↓↓↓ ---
+        if keys[pygame.K_3]:
+            self.activate_skill_3(gameplay_scene)
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
         self.update_skills()
         mouse_buttons = pygame.mouse.get_pressed()

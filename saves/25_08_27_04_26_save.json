@@ -1,14 +1,13 @@
 {
     "unlocked_levels": [
         1,
-        2,
-        3
+        2
     ],
     "player_stats": {
-        "speed_multiplier": 1.3224999999999998,
-        "skill_duration_bonus": 16000,
-        "skill_cooldown_multiplier": 0.81,
-        "global_cooldown_multiplier": 0.5314410000000002,
+        "speed_multiplier": 1.0,
+        "skill_duration_bonus": 0,
+        "skill_cooldown_multiplier": 1.0,
+        "global_cooldown_multiplier": 1.0,
         "weapon_data": {
             "1": {
                 "id": "bsword",
@@ -19,22 +18,22 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 75,
-                "cooldown": 0.5,
+                "damage": 35,
+                "cooldown": 0.8,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             },
             "2": {
-                "id": "board",
+                "id": "skill1",
                 "name": "\u8f49\u578b\u6b63\u7fa9",
                 "image_path": "assets/images/board.png",
                 "size": [
                     70,
                     70
                 ],
-                "projectile_size_multiplier": 0.9,
-                "damage": 120,
-                "cooldown": 0.8,
+                "projectile_size_multiplier": 1.2,
+                "damage": 60,
+                "cooldown": 0.9,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"
             },
@@ -48,7 +47,7 @@
                 ],
                 "projectile_size_multiplier": 0.9,
                 "damage": 100,
-                "cooldown": 1,
+                "cooldown": 3.0,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             }

@@ -20,8 +20,8 @@ LEVELS = {
         'playersize': (30, 60),
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10 },
-        'victory_monster_limit': 20,
-        'unlocked_weapons': [1, 2]
+        'unlocked_weapons': [1, 2],
+        'level_multiplier': 1.0,
     },
     2: {
         'id': 'pier_assault_2',
@@ -34,8 +34,8 @@ LEVELS = {
         'playersize': (30, 60),
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
-        'victory_monster_limit': 20,
-        'unlocked_weapons': [1, 2, 3]
+        'unlocked_weapons': [1, 2, 3],
+        'level_multiplier': 1.2,
     },
     3: {
         'id': 'pier_assault_2',
@@ -48,8 +48,8 @@ LEVELS = {
         'playersize': (30, 60),
         'duration': 30,
         'spawns': { 'gbird_alpha': 30, 'gbird_beta': 10, 'solarpanel_beta': 10 },
-        'victory_monster_limit': 20,
-        'unlocked_weapons': [1, 2, 3]
+        'unlocked_weapons': [1, 2, 3],
+        'level_multiplier': 1.5,
     }
 }
 
@@ -66,7 +66,9 @@ WEAPON_DATA = {
         'cooldown_type': 'on_fire'
     },
     2: {
-        'id': 'board', 
+        # --- ↓↓↓ 【【【本次修改：id 改為新的圖示名稱】】】 ↓↓↓ ---
+        'id': 'skill1', 
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         'name': '轉型正義',
         'image_path': 'assets/images/board.png',
         'size': (70, 70),
@@ -93,6 +95,7 @@ MONSTER_DATA = {
     'gbird_alpha': { 
         'name': 'G-Bird Alpha', 
         'health': 30, 
+        'damage': 10,
         'spawn_interval': 3000, 
         'escape_time': 15000, 
         'speed': 2, 
@@ -107,6 +110,7 @@ MONSTER_DATA = {
     'gbird_beta': { 
         'name': 'G-Bird Beta', 
         'health': 60, 
+        'damage': 15,
         'spawn_interval': 5000, 
         'escape_time': 20000, 
         'speed': 1, 
@@ -121,6 +125,7 @@ MONSTER_DATA = {
     'solarpanel_beta': { 
         'name': 'Solarpanel_beta', 
         'health': 100, 
+        'damage': 25,
         'spawn_interval': 5000, 
         'escape_time': 20000, 
         'speed': 1, 
@@ -149,5 +154,5 @@ UPGRADE_DATA = {
     'player_speed_up': {'name': '身輕如燕', 'description': '移動速度 +15%', 'type': 'multiply', 'stat': 'speed', 'value': 1.15},
     'bsword_damage_up': {'name': '打磨竹簡', 'description': '竹簡劍傷害 +5', 'type': 'add', 'weapon_id': 1, 'stat': 'damage', 'value': 5},
     'board_damage_up': {'name': '正義鐵拳', 'description': '路牌傷害 +10', 'type': 'add', 'weapon_id': 2, 'stat': 'damage', 'value': 10},
-    'global_cooldown_down': {'name': '神速', 'description': '所有武器攻擊冷卻 -10%', 'type': 'multiply', 'stat': 'global_cooldown', 'value': 0.9}
+    'bsword_heavy_damage_up': {'name': '竹簡奧義', 'description': '重型竹簡劍傷害 +30', 'type': 'add', 'weapon_id': 3, 'stat': 'damage', 'value': 30}
 }

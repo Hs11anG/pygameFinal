@@ -71,6 +71,10 @@ class Game:
         assets.load_image('level2_icon', 'assets/images/level2.png')
         assets.load_image('level3_icon', 'assets/images/level3.png')
         assets.load_image('exclamation', 'assets/images/exclamation.png')
+        # --- ↓↓↓ 【【【本次新增：載入技能圖示】】】 ↓↓↓ ---
+        assets.load_image('skill1', 'assets/images/skill1.png')
+        assets.load_image('skill2', 'assets/images/skill2.png')
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         
         # 載入怪物動畫
         for monster_id, data in MONSTER_DATA.items():

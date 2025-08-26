@@ -5,12 +5,18 @@ from settings import *
 from asset_manager import assets
 
 class Monster(pygame.sprite.Sprite):
-    def __init__(self, spawn_pos, monster_type, target):
+    def __init__(self, spawn_pos, monster_type, target, level_multiplier=1.0): # 【【【修改：接收 level_multiplier】】】
         super().__init__()
         
         self.data = MONSTER_DATA[monster_type]
         self.target = target
         self.state = 'alive' 
+
+        # --- ↓↓↓ 【【【本次修改：根據關卡加權計算最終數值】】】 ↓↓↓ ---
+        self.health = self.data['health'] * level_multiplier
+        self.max_health = self.health
+        self.damage = self.data['damage'] * level_multiplier
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         # 載入移動動畫影格
         self.animation_frames = []
@@ -28,7 +34,6 @@ class Monster(pygame.sprite.Sprite):
                 if frame_image:
                     self.death_frames.append(frame_image)
 
-        # 【【【BUG修正：使用獨立的動畫索引】】】
         self.alive_frame_index = 0
         self.death_frame_index = 0
         self.last_update_time = pygame.time.get_ticks()
@@ -49,26 +54,23 @@ class Monster(pygame.sprite.Sprite):
         self.image = self.image_right
         self.rect = self.image.get_rect(center=spawn_pos)
         
-        self.health = self.data['health']
-        self.max_health = self.health
         self.speed = self.data['speed']
         self.direction = pygame.Vector2(1, 0)
         self.facing_right = True
 
     def take_damage(self, amount):
         if self.state != 'alive':
-             return False # 如果不是活著的狀態，不受傷
+             return False
         
         self.health -= amount
-        # 【【【BUG修正：回傳是否死亡，以修正 kill_count】】】
         if self.health <= 0 and self.state == 'alive':
             self.die()
-            return True # 剛剛死亡
-        return False # 受傷但還活著
+            return True
+        return False
 
     def die(self):
         self.state = 'dying'
-        self.death_frame_index = 0 # 只重置死亡動畫的索引
+        self.death_frame_index = 0
         self.death_animation_start_time = pygame.time.get_ticks()
         self.speed = 0
 

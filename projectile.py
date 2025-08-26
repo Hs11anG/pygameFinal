@@ -20,30 +20,23 @@ class BswordProjectile(Projectile):
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
         
-        # --- ↓↓↓ 【【【這是修正後、更穩定的旋轉與圖像邏輯】】】 ↓↓↓
-        # 1. 載入原始圖片
+        # --- ↓↓↓ 【【【本次新增：穿透屬性】】】 ↓↓↓ ---
+        self.piercing = False
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+
         original_image = assets.get_image(self.data['id'])
-        
-        # 2. 【先縮放】到正確的飛行物大小
         size_multiplier = self.data['projectile_size_multiplier']
         new_size = (int(self.data['size'][0] * size_multiplier), int(self.data['size'][1] * size_multiplier))
         scaled_image = pygame.transform.scale(original_image, new_size)
         
-        # 3. 計算角度
         dx = target_pos[0] - start_pos[0]
         dy = target_pos[1] - start_pos[1]
         angle = math.degrees(math.atan2(-dy, dx)) - 90
 
-        # 4. 【再旋轉】已經縮放好的圖片
         self.image = pygame.transform.rotate(scaled_image, angle)
-        
-        # 5. 【最後校正中心點】
-        # 取得旋轉後變大了的外框，並將它的中心點強制設定為我們的出發點
         self.rect = self.image.get_rect(center=start_pos)
-        
         self.mask = pygame.mask.from_surface(self.image)
         
-        # 移動邏輯 (不變)
         self.direction = pygame.Vector2(dx, dy)
         if self.direction.length() > 0:
             self.direction.normalize_ip()
@@ -56,7 +49,6 @@ class BswordProjectile(Projectile):
 
 # --- 武器二：轉型正義板 (迴力鏢) ---
 class BoardProjectile(Projectile):
-    # (這個類別的程式碼完全不需要修改)
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
         

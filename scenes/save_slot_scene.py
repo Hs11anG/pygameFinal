@@ -57,7 +57,9 @@ class SaveSlotScene(Scene):
                     player.from_dict(player_stats)
                 
                 level_select_scene = self.manager.scenes['level_select']
-                level_select_scene.setup()
+                # --- ↓↓↓ 【【【本次修改：讀檔後進入地圖，也要重置位置】】】 ↓↓↓ ---
+                level_select_scene.setup(reset_player_pos=True)
+                # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
                 self.manager.switch_to_scene('level_select')
 
         elif self.mode == 'delete':
@@ -78,15 +80,19 @@ class SaveSlotScene(Scene):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.prompt_selection == '是':
                     save_manager.delete_save(self.save_files[self.hovered_option]['path'])
-                    self.setup('delete')
+                    
+                    save_manager.create_new_save()
+                    self.manager.start_new_run()
+                    level_select_scene = self.manager.scenes['level_select']
+                    level_select_scene.setup(reset_player_pos=True)
+                    self.manager.switch_to_scene('level_select')
+
                 elif self.prompt_selection == '否':
                     self.show_delete_prompt = False
     
-    # --- ↓↓↓ 【【【補上 update 方法】】】 ↓↓↓ ---
     def update(self):
         """此場景為靜態，不需更新"""
         pass
-    # --- ↑↑↑ 【【【補上 update 方法】】】 ↑↑↑ ---
 
     def get_slot_rect(self, index):
         rect = pygame.Rect(0, 0, 700, 80)
@@ -98,7 +104,7 @@ class SaveSlotScene(Scene):
         title_font = assets.get_font('title')
         menu_font = assets.get_font('menu')
         
-        title_text = "讀取進度" if self.mode == 'load' else "刪除存檔"
+        title_text = "讀取進度" if self.mode == 'load' else "刪除存檔以建立新遊戲"
         title_surf = title_font.render(title_text, True, WHITE)
         title_rect = title_surf.get_rect(center=(SCREEN_WIDTH / 2, 100))
         screen.blit(title_surf, title_rect)

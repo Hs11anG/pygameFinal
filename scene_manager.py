@@ -1,8 +1,8 @@
 # scene_manager.py
 import pygame
 from player import Player
+from save_manager import save_manager # 引入 save_manager
 
-# --- ↓↓↓ 【【【新增缺失的 Scene 類別】】】 ↓↓↓ ---
 class Scene:
     """
     所有場景的基礎類別 (模板)。
@@ -21,7 +21,6 @@ class Scene:
     def draw(self, screen):
         """將該場景繪製到螢幕上"""
         raise NotImplementedError
-# --- ↑↑↑ 【【【新增缺失的 Scene 類別】】】 ↑↑↑ ---
 
 class SceneManager:
     def __init__(self, initial_scene_name, scenes):
@@ -30,6 +29,17 @@ class SceneManager:
         self.player = None
 
     def switch_to_scene(self, scene_name):
+        # --- ↓↓↓ 【【【邏輯新增】】】 ↓↓↓ ---
+        # 當返回主選單時，重置所有遊戲相關的狀態
+        if scene_name == 'main_menu':
+            print("Returning to Main Menu, resetting states.")
+            # 銷毀當前的玩家物件
+            self.player = None 
+            # 重置存檔管理器的當前狀態 (清除已載入的存檔)
+            save_manager.current_save_slot = None
+            save_manager.unlocked_levels = {1}
+        # --- ↑↑↑ 【【【邏輯新增】】】 ↑↑↑ ---
+
         self.current_scene = self.scenes[scene_name]
         
     def get_scene(self):

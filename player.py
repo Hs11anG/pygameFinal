@@ -40,22 +40,18 @@ class Player(pygame.sprite.Sprite):
         self.reset_cooldowns()
         self.can_move = True
 
-    # --- ↓↓↓ 【【【本次修改：徹底重置所有技能狀態】】】 ↓↓↓ ---
     def reset_cooldowns(self):
         print("所有技能冷卻時間與狀態已重置！")
         now = pygame.time.get_ticks()
         
-        # 重置冷卻計時器
         self.skill_1_cooldown_start_time = now - (self.base_skill_1_cooldown * self.skill_cooldown_multiplier)
         self.skill_2_cooldown_start_time = now - (self.base_skill_2_cooldown * self.skill_cooldown_multiplier)
         self.last_shot_time = {}
 
-        # 重置技能啟用狀態
         self.skill_1_active = False
         self.skill_1_activation_time = 0
         self.skill_2_active = False
         self.skill_2_activation_time = 0
-    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
     def adjust_timers_for_pause(self, pause_duration):
         if self.skill_1_activation_time > 0:
@@ -174,6 +170,11 @@ class Player(pygame.sprite.Sprite):
                 projectile_group.add(new_projectile)
     
     def activate_skill_1(self):
+        # --- ↓↓↓ 【【【本次新增：檢查另一個技能是否已啟用】】】 ↓↓↓ ---
+        if self.skill_2_active:
+            # print("技能 2 正在使用中，無法啟用技能 1！") # 可選：在控制台印出提示
+            return
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         now = pygame.time.get_ticks()
         cooldown = self.base_skill_1_cooldown * self.skill_cooldown_multiplier
         if now - self.skill_1_cooldown_start_time >= cooldown:
@@ -183,6 +184,11 @@ class Player(pygame.sprite.Sprite):
             print("技能 1 已啟用: 轉型正義！")
 
     def activate_skill_2(self):
+        # --- ↓↓↓ 【【【本次新增：檢查另一個技能是否已啟用】】】 ↓↓↓ ---
+        if self.skill_1_active:
+            # print("技能 1 正在使用中，無法啟用技能 2！") # 可選：在控制台印出提示
+            return
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         now = pygame.time.get_ticks()
         cooldown = self.base_skill_2_cooldown * self.skill_cooldown_multiplier
         if now - self.skill_2_cooldown_start_time >= cooldown:

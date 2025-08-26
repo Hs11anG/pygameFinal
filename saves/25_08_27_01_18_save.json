@@ -5,7 +5,7 @@
         3
     ],
     "player_stats": {
-        "speed_multiplier": 1.3224999999999998,
+        "speed_multiplier": 1.5208749999999995,
         "skill_duration_bonus": 16000,
         "skill_cooldown_multiplier": 0.81,
         "global_cooldown_multiplier": 0.5314410000000002,
@@ -19,7 +19,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 90,
+                "damage": 105,
                 "cooldown": 0.5,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
@@ -33,7 +33,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 160,
+                "damage": 180,
                 "cooldown": 0.8,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"
@@ -47,7 +47,7 @@
                     100
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 100,
+                "damage": 250,
                 "cooldown": 1,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"

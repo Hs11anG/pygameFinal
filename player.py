@@ -3,7 +3,7 @@ import pygame
 from asset_manager import assets
 from settings import *
 from weapon import PROJECTILE_CLASSES
-from projectile import BswordProjectile # 【【【本次新增：引入 BswordProjectile】】】
+from projectile import BswordProjectile
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, start_pos, level_number):
@@ -14,12 +14,11 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, player_size)
         self.rect = self.image.get_rect(midbottom=start_pos)
         
-        # --- ↓↓↓ 【【【本次修改：新增技能2的相關屬性】】】 ↓↓↓ ---
         self.base_speed = 5
         self.base_skill_1_duration = 5000
         self.base_skill_1_cooldown = 10000
-        self.base_skill_2_duration = 3000  # 技能2持續3秒
-        self.base_skill_2_cooldown = 12000 # 技能2冷卻12秒
+        self.base_skill_2_duration = 3000
+        self.base_skill_2_cooldown = 12000
 
         self.speed_multiplier = 1.0
         self.skill_duration_bonus = 0
@@ -31,27 +30,32 @@ class Player(pygame.sprite.Sprite):
         self.default_weapon_type = 1
         self.last_shot_time = {}
         
-        # 技能1 ("轉型正義")
         self.skill_1_weapon_type = 2
         self.skill_1_active = False
         self.skill_1_activation_time = 0
         
-        # 技能2 ("融會貫通")
         self.skill_2_active = False
         self.skill_2_activation_time = 0
         
         self.reset_cooldowns()
         self.can_move = True
-        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
+    # --- ↓↓↓ 【【【本次修改：徹底重置所有技能狀態】】】 ↓↓↓ ---
     def reset_cooldowns(self):
-        print("所有技能冷卻時間已重置！")
+        print("所有技能冷卻時間與狀態已重置！")
         now = pygame.time.get_ticks()
-        # 技能1冷卻
+        
+        # 重置冷卻計時器
         self.skill_1_cooldown_start_time = now - (self.base_skill_1_cooldown * self.skill_cooldown_multiplier)
-        # 技能2冷卻
         self.skill_2_cooldown_start_time = now - (self.base_skill_2_cooldown * self.skill_cooldown_multiplier)
         self.last_shot_time = {}
+
+        # 重置技能啟用狀態
+        self.skill_1_active = False
+        self.skill_1_activation_time = 0
+        self.skill_2_active = False
+        self.skill_2_activation_time = 0
+    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
     def adjust_timers_for_pause(self, pause_duration):
         if self.skill_1_activation_time > 0:
@@ -164,10 +168,8 @@ class Player(pygame.sprite.Sprite):
                 new_projectile = ProjectileClass(self.rect.center, target_pos, current_weapon_type)
                 new_projectile.damage = weapon_data['damage']
                 
-                # --- ↓↓↓ 【【【本次新增：如果技能2啟用，則賦予穿透】】】 ↓↓↓ ---
                 if self.skill_2_active and isinstance(new_projectile, BswordProjectile):
                     new_projectile.piercing = True
-                # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
                 projectile_group.add(new_projectile)
     
@@ -180,7 +182,6 @@ class Player(pygame.sprite.Sprite):
             self.skill_1_cooldown_start_time = float('inf') 
             print("技能 1 已啟用: 轉型正義！")
 
-    # --- ↓↓↓ 【【【本次新增：技能2的啟用方法】】】 ↓↓↓ ---
     def activate_skill_2(self):
         now = pygame.time.get_ticks()
         cooldown = self.base_skill_2_cooldown * self.skill_cooldown_multiplier
@@ -189,11 +190,9 @@ class Player(pygame.sprite.Sprite):
             self.skill_2_activation_time = now
             self.skill_2_cooldown_start_time = float('inf') 
             print("技能 2 已啟用: 融會貫通！")
-    # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def update_skills(self):
         now = pygame.time.get_ticks()
-        # 更新技能1
         if self.skill_1_active:
             duration = self.base_skill_1_duration + self.skill_duration_bonus
             if now - self.skill_1_activation_time > duration:
@@ -201,25 +200,20 @@ class Player(pygame.sprite.Sprite):
                 self.skill_1_cooldown_start_time = now
                 print("技能 1 持續時間結束，進入冷卻。")
         
-        # --- ↓↓↓ 【【【本次新增：更新技能2】】】 ↓↓↓ ---
-        # 更新技能2
         if self.skill_2_active:
             duration = self.base_skill_2_duration
             if now - self.skill_2_activation_time > duration:
                 self.skill_2_active = False
                 self.skill_2_cooldown_start_time = now
                 print("技能 2 持續時間結束，進入冷卻。")
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def update(self, keys, events, projectile_group, mask=None):
         self.move(keys, mask)
         
-        # --- ↓↓↓ 【【【本次修改：處理技能1和2的按鍵】】】 ↓↓↓ ---
         if keys[pygame.K_1]:
             self.activate_skill_1()
         if keys[pygame.K_2]:
             self.activate_skill_2()
-        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         self.update_skills()
         mouse_buttons = pygame.mouse.get_pressed()
@@ -227,7 +221,6 @@ class Player(pygame.sprite.Sprite):
             self.shoot(pygame.mouse.get_pos(), projectile_group)
 
     def draw_ui(self, screen):
-        # 技能1持續時間顯示
         if self.skill_1_active:
             font = assets.get_font('weapon_ui')
             if not font: return
@@ -239,14 +232,12 @@ class Player(pygame.sprite.Sprite):
             text = f"{remaining_duration:.1f}s"
             color = (255, 255, 0) 
             text_surf = font.render(text, True, color)
-            # 將 UI 顯示在角色頭頂偏左的位置
             text_rect = text_surf.get_rect(midbottom=self.rect.midtop, y=self.rect.top - 40, x=self.rect.centerx - 50)
             bg_rect = text_rect.inflate(8, 4)
             pygame.draw.rect(screen, UI_BG_COLOR, bg_rect, border_radius=3)
             pygame.draw.rect(screen, UI_BORDER_COLOR, bg_rect, width=1, border_radius=3)
             screen.blit(text_surf, text_rect)
             
-        # --- ↓↓↓ 【【【本次新增：技能2的持續時間顯示】】】 ↓↓↓ ---
         if self.skill_2_active:
             font = assets.get_font('weapon_ui')
             if not font: return
@@ -256,12 +247,10 @@ class Player(pygame.sprite.Sprite):
             if remaining_duration < 0: return
             
             text = f"{remaining_duration:.1f}s"
-            color = (0, 255, 255) # 青色
+            color = (0, 255, 255)
             text_surf = font.render(text, True, color)
-            # 將 UI 顯示在角色頭頂偏右的位置
             text_rect = text_surf.get_rect(midbottom=self.rect.midtop, y=self.rect.top - 40, x=self.rect.centerx + 10)
             bg_rect = text_rect.inflate(8, 4)
             pygame.draw.rect(screen, UI_BG_COLOR, bg_rect, border_radius=3)
             pygame.draw.rect(screen, UI_BORDER_COLOR, bg_rect, width=1, border_radius=3)
             screen.blit(text_surf, text_rect)
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---

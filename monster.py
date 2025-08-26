@@ -5,18 +5,20 @@ from settings import *
 from asset_manager import assets
 
 class Monster(pygame.sprite.Sprite):
-    def __init__(self, spawn_pos, monster_type, target, level_multiplier=1.0): # 【【【修改：接收 level_multiplier】】】
+    def __init__(self, spawn_pos, monster_type, target, level_multiplier=1.0):
         super().__init__()
         
         self.data = MONSTER_DATA[monster_type]
         self.target = target
         self.state = 'alive' 
 
-        # --- ↓↓↓ 【【【本次修改：根據關卡加權計算最終數值】】】 ↓↓↓ ---
         self.health = self.data['health'] * level_multiplier
         self.max_health = self.health
         self.damage = self.data['damage'] * level_multiplier
-        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
+
+        # --- ↓↓↓ 【【【本次新增：僵直計時器】】】 ↓↓↓ ---
+        self.stun_end_time = 0 
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
         # 載入移動動畫影格
         self.animation_frames = []
@@ -137,9 +139,19 @@ class Monster(pygame.sprite.Sprite):
         knockback_vector = -self.direction * 50
         self.rect.center += knockback_vector
         print(f"'{self.data['name']}' was knocked back.")
+        # --- ↓↓↓ 【【【本次新增：設定僵直結束的時間點】】】 ↓↓↓ ---
+        self.stun_end_time = pygame.time.get_ticks() + 100 # 100 毫秒 = 0.1 秒
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+
 
     def update(self):
         if self.state == 'alive':
+            # --- ↓↓↓ 【【【本次新增：檢查是否在僵直狀態】】】 ↓↓↓ ---
+            now = pygame.time.get_ticks()
+            if now < self.stun_end_time:
+                return # 如果還在僵直時間內，直接跳過後續所有動作
+            # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+
             self.animate_alive()
             self.attack_target()
             

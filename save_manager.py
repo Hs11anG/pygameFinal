@@ -75,6 +75,7 @@ class SaveManager:
             self.unlocked_levels.add(next_level)
             print(f"已解鎖關卡 {next_level}!")
 
+    # --- ↓↓↓ 【【【本次修改：get_all_saves 現在會讀取存檔內容】】】 ↓↓↓ ---
     def get_all_saves(self):
         files = [f for f in os.listdir(self.save_folder) if f.endswith('.json')]
         saves = []
@@ -82,10 +83,25 @@ class SaveManager:
             file_path = os.path.join(self.save_folder, file)
             try:
                 mtime = os.path.getmtime(file_path)
-                saves.append({'path': file_path, 'time': mtime, 'name': file})
-            except FileNotFoundError:
+                
+                # 開啟檔案以讀取其內容
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                    unlocked_levels = data.get('unlocked_levels', [1])
+                    # 已解鎖的最高等級即為進度
+                    highest_level = max(unlocked_levels) if unlocked_levels else 1
+                
+                saves.append({
+                    'path': file_path, 
+                    'time': mtime, 
+                    'name': file, 
+                    'highest_level': highest_level
+                })
+            except (FileNotFoundError, json.JSONDecodeError):
+                # 如果檔案損壞或找不到，就跳過
                 continue
         return sorted(saves, key=lambda x: x['time'], reverse=True)
+    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
     def delete_save(self, file_path):
         if os.path.exists(file_path):

@@ -23,10 +23,11 @@ class LevelIcon(pygame.sprite.Sprite):
             grayscale_image.set_alpha(150)
             original_image = grayscale_image
         
-        new_size = (80, 80)
+        new_size = (LEVEL_ICON_SIZE, LEVEL_ICON_SIZE)
         self.image = pygame.transform.scale(original_image, new_size)
         
-        self.rect = self.image.get_rect(center=position)
+        self.rect = self.image.get_rect(midbottom=position)
+        self.rect.y += 30
         self.interaction_text = ""
 
     def update(self, player):

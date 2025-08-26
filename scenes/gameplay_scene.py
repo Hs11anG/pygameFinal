@@ -123,18 +123,27 @@ class GameplayScene(Scene):
         )
         for projectile, monsters_hit in possible_hits.items():
             for monster in monsters_hit:
-                if pygame.sprite.collide_mask(projectile, monster):
+                # --- ↓↓↓ 【【【BUG修正：核心邏輯，檢查是否已命中】】】 ↓↓↓ ---
+                # 檢查1: 真的有碰撞到 (mask)
+                # 檢查2: 這個怪物還沒被這個飛行物打過
+                if pygame.sprite.collide_mask(projectile, monster) and monster not in projectile.hit_monsters:
                     just_died = monster.take_damage(projectile.damage)
                     if just_died:
                         self.kill_count += 1
                         self.level_total_kills += 1
                     
-                    # --- ↓↓↓ 【【【本次修改：穿透的飛行物不會消失】】】 ↓↓↓ ---
+                    # 將怪物加入已命中列表，確保只造成一次傷害
+                    projectile.hit_monsters.add(monster)
+                    
+                    # 判斷飛行物是否要消失
                     is_piercing_bsword = isinstance(projectile, BswordProjectile) and projectile.piercing
                     if not isinstance(projectile, BoardProjectile) and not is_piercing_bsword:
                          projectile.kill()
-                    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
-                    break
+                    
+                    # 對於非穿透武器，打到一個就跳出內層迴圈
+                    if not is_piercing_bsword:
+                        break 
+                # --- ↑↑↑ 【【【BUG修正】】】 ↑↑↑ ---
 
         if self.protection_target:
             hits = pygame.sprite.spritecollide(
@@ -287,11 +296,9 @@ class GameplayScene(Scene):
                 text_rect = text_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
                 screen.blit(text_surf, text_rect)
 
-    # --- ↓↓↓ 【【【本次修改：重構 draw_skill_ui 以支援多個技能】】】 ↓↓↓ ---
     def draw_skill_ui(self, screen):
         if not self.player: return
         
-        # --- 技能1 UI ---
         self.draw_single_skill(
             screen, 
             key_text='1', 
@@ -300,10 +307,9 @@ class GameplayScene(Scene):
             cooldown_start_time=self.player.skill_1_cooldown_start_time,
             base_cooldown=self.player.base_skill_1_cooldown,
             cooldown_multiplier=self.player.skill_cooldown_multiplier,
-            position_offset=-60 # 往左偏移
+            position_offset=-60
         )
         
-        # --- 技能2 UI (只有解鎖第二關後才顯示) ---
         if save_manager.is_level_unlocked(2):
             self.draw_single_skill(
                 screen, 
@@ -313,8 +319,8 @@ class GameplayScene(Scene):
                 cooldown_start_time=self.player.skill_2_cooldown_start_time,
                 base_cooldown=self.player.base_skill_2_cooldown,
                 cooldown_multiplier=self.player.skill_cooldown_multiplier,
-                position_offset=60, # 往右偏移
-                active_color=(0, 255, 255) # 青色
+                position_offset=60,
+                active_color=(0, 255, 255)
             )
 
     def draw_single_skill(self, screen, key_text, skill_icon_id, skill_active, cooldown_start_time, base_cooldown, cooldown_multiplier, position_offset, active_color=(255, 255, 0)):
@@ -360,7 +366,6 @@ class GameplayScene(Scene):
                 cd_surf = font.render(cd_text, True, WHITE)
                 cd_rect = cd_surf.get_rect(center=bg_rect.center)
                 screen.blit(cd_surf, cd_rect)
-    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
     def draw(self, screen):
         if self.background_image:

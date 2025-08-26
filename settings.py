@@ -147,7 +147,7 @@ TITLE_FONT_SIZE = 96
 MENU_FONT_SIZE = 64
 UI_BG_COLOR = (20, 20, 20)
 UI_BORDER_COLOR = (180, 180, 180)
-
+LEVEL_ICON_SIZE = 120
 UPGRADE_DATA = {
     'skill_duration_up': {'name': '路牌猛擊', 'description': '技能持續時間 +2 秒', 'type': 'add', 'stat': 'skill_1_duration', 'value': 2000},
     'skill_cooldown_down': {'name': '精神時光', 'description': '技能冷卻時間 -10%', 'type': 'multiply', 'stat': 'skill_1_cooldown', 'value': 0.9},

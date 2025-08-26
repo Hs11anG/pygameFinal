@@ -20,9 +20,10 @@ class BswordProjectile(Projectile):
     def __init__(self, start_pos, target_pos, weapon_type):
         super().__init__(start_pos, target_pos, weapon_type)
         
-        # --- ↓↓↓ 【【【本次新增：穿透屬性】】】 ↓↓↓ ---
         self.piercing = False
-        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+        # --- ↓↓↓ 【【【BUG修正：新增已命中列表】】】 ↓↓↓ ---
+        self.hit_monsters = set()
+        # --- ↑↑↑ 【【【BUG修正】】】 ↑↑↑ ---
 
         original_image = assets.get_image(self.data['id'])
         size_multiplier = self.data['projectile_size_multiplier']
@@ -66,7 +67,9 @@ class BoardProjectile(Projectile):
         self.rotation_speed = 15
         self.spin_start_time = 0
         self.spin_duration = 1000
-        self.hit_cooldowns = {}
+        # --- ↓↓↓ 【【【BUG修正：將 hit_cooldowns 改為 hit_monsters】】】 ↓↓↓ ---
+        self.hit_monsters = set()
+        # --- ↑↑↑ 【【【BUG修正】】】 ↑↑↑ ---
 
     def update(self):
         now = pygame.time.get_ticks()

@@ -36,7 +36,7 @@ class LevelSelectScene(Scene):
         # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         
         self.level_icons.empty()
-        positions = {1: (630, 435), 2: (790, 360), 3: (930, 325)}
+        positions = {1: (630, 435), 2: (790, 370), 3: (930, 325)}
         for level_num, pos in positions.items():
             if level_num in LEVELS:
                 is_unlocked = save_manager.is_level_unlocked(level_num)

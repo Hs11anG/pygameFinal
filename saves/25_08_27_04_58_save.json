@@ -6,7 +6,7 @@
     "player_stats": {
         "speed_multiplier": 1.0,
         "skill_duration_bonus": 0,
-        "skill_cooldown_multiplier": 1.0,
+        "skill_cooldown_multiplier": 0.81,
         "global_cooldown_multiplier": 1.0,
         "weapon_data": {
             "1": {
@@ -32,7 +32,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 1.2,
-                "damage": 60,
+                "damage": 50,
                 "cooldown": 0.9,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"

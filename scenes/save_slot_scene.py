@@ -57,9 +57,7 @@ class SaveSlotScene(Scene):
                     player.from_dict(player_stats)
                 
                 level_select_scene = self.manager.scenes['level_select']
-                # --- ↓↓↓ 【【【本次修改：讀檔後進入地圖，也要重置位置】】】 ↓↓↓ ---
                 level_select_scene.setup(reset_player_pos=True)
-                # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
                 self.manager.switch_to_scene('level_select')
 
         elif self.mode == 'delete':
@@ -102,7 +100,10 @@ class SaveSlotScene(Scene):
     def draw(self, screen):
         screen.fill(UI_BG_COLOR)
         title_font = assets.get_font('title')
-        menu_font = assets.get_font('menu')
+        menu_font = assets.get_font('weapon_ui')
+        # --- ↓↓↓ 【【【本次新增：取得較小的 UI 字體】】】 ↓↓↓ ---
+        ui_font = assets.get_font('weapon_ui') 
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         
         title_text = "讀取進度" if self.mode == 'load' else "刪除存檔以建立新遊戲"
         title_surf = title_font.render(title_text, True, WHITE)
@@ -114,11 +115,21 @@ class SaveSlotScene(Scene):
             color = HOVER_COLOR if i == self.hovered_option else UI_BORDER_COLOR
             pygame.draw.rect(screen, color, rect, width=2, border_radius=5)
             
+            # --- ↓↓↓ 【【【本次修改：重新排版存檔資訊的顯示】】】 ↓↓↓ ---
+            # 顯示存檔時間
             dt_object = datetime.fromtimestamp(file['time'])
             time_str = dt_object.strftime("%Y-%m-%d %H:%M:%S")
-            text_surf = menu_font.render(time_str, True, WHITE)
-            text_rect = text_surf.get_rect(center=rect.center)
-            screen.blit(text_surf, text_rect)
+            time_surf = menu_font.render(time_str, True, WHITE)
+            time_rect = time_surf.get_rect(midleft=(rect.left + 20, rect.centery))
+            screen.blit(time_surf, time_rect)
+
+            # 顯示最高關卡進度
+            highest_level = file.get('highest_level', 1)
+            level_text = f"最高進度: 關卡 {highest_level}"
+            level_surf = ui_font.render(level_text, True, WHITE)
+            level_rect = level_surf.get_rect(midright=(rect.right - 20, rect.centery))
+            screen.blit(level_surf, level_rect)
+            # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         if self.show_delete_prompt:
             self.draw_delete_prompt(screen)

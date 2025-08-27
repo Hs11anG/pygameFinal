@@ -37,7 +37,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 1.2,
-                "damage": 120,
+                "damage": 140,
                 "cooldown": 0.5,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"

@@ -99,8 +99,9 @@ class Game:
         # 載入字體
         assets.load_font('title', 'NotoSerifTC-ExtraBold.ttf', TITLE_FONT_SIZE)
         assets.load_font('menu', 'NotoSerifTC-Medium.ttf', MENU_FONT_SIZE)
+        assets.load_font('des', 'NotoSerifTC-ExtraBold.ttf', 24)
         assets.load_font('ui', 'BoutiqueBitmap9x9_Bold_1.9.ttf', 40)
-        assets.load_font('weapon_ui', 'BoutiqueBitmap9x9_Bold_1.9.ttf', 24)
+        assets.load_font('weapon_ui', 'BoutiqueBitmap9x9_Bold_1.9.ttf', 20)
 
 
     def run(self):

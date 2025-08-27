@@ -6,7 +6,11 @@
     "player_stats": {
         "speed_multiplier": 1.0,
         "skill_duration_bonus": 0,
-        "skill_cooldown_multiplier": 0.81,
+        "skill_cooldown_multipliers": {
+            "1": 0.81,
+            "2": 1.0,
+            "3": 1.0
+        },
         "global_cooldown_multiplier": 1.0,
         "weapon_data": {
             "1": {
@@ -18,8 +22,8 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 35,
-                "cooldown": 0.8,
+                "damage": 30,
+                "cooldown": 0.6,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             },
@@ -33,7 +37,7 @@
                 ],
                 "projectile_size_multiplier": 1.2,
                 "damage": 50,
-                "cooldown": 0.9,
+                "cooldown": 0.5,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"
             },
@@ -51,6 +55,8 @@
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             }
-        }
-    }
+        },
+        "rescue_skill_speed_multiplier": 1.0
+    },
+    "tutorial_completed": true
 }

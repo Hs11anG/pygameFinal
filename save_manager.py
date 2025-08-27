@@ -14,6 +14,9 @@ class SaveManager:
         
         self.current_save_slot = None
         self.unlocked_levels = {1}
+        # --- ↓↓↓ 【【【本次新增：新增教學旗標】】】 ↓↓↓ ---
+        self.tutorial_completed = False
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
     def create_new_save(self):
         saves = self.get_all_saves()
@@ -26,7 +29,10 @@ class SaveManager:
         
         new_save_data = {
             'unlocked_levels': [1],
-            'player_stats': None
+            'player_stats': None,
+            # --- ↓↓↓ 【【【本次新增：建立新存檔時，預設為未完成教學】】】 ↓↓↓ ---
+            'tutorial_completed': False
+            # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         }
         
         with open(file_path, 'w') as f:
@@ -34,6 +40,9 @@ class SaveManager:
             
         self.current_save_slot = file_path
         self.unlocked_levels = {1}
+        # --- ↓↓↓ 【【【本次新增：設定當前狀態】】】 ↓↓↓ ---
+        self.tutorial_completed = False
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         print(f"已創建新存檔: {file_path}")
 
     def save_game(self, player_obj):
@@ -49,6 +58,9 @@ class SaveManager:
             data = {}
 
         data['unlocked_levels'] = sorted(list(self.unlocked_levels))
+        # --- ↓↓↓ 【【【本次新增：儲存教學狀態】】】 ↓↓↓ ---
+        data['tutorial_completed'] = self.tutorial_completed
+        # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
         if player_obj:
             data['player_stats'] = player_obj.to_dict()
 
@@ -63,19 +75,32 @@ class SaveManager:
                 data = json.load(f)
                 self.current_save_slot = file_path
                 self.unlocked_levels = set(data.get('unlocked_levels', [1]))
+                # --- ↓↓↓ 【【【本次新增：讀取教學狀態】】】 ↓↓↓ ---
+                # .get 的第二個參數是預設值，確保舊存檔也能正常運作
+                self.tutorial_completed = data.get('tutorial_completed', False)
+                # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
                 print(f"已讀取存檔: {file_path}")
                 return data
         except FileNotFoundError:
             print(f"錯誤：找不到存檔 {file_path}")
             return None
     
+    # --- ↓↓↓ 【【【本次新增：一個專門用來標記教學完成的方法】】】 ↓↓↓ ---
+    def mark_tutorial_as_completed(self, player_obj):
+        """將教學標記為已完成，並立即存檔"""
+        if self.tutorial_completed:
+            return
+        print("標記教學為已完成並存檔。")
+        self.tutorial_completed = True
+        self.save_game(player_obj)
+    # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
+
     def unlock_next_level(self, completed_level):
         next_level = completed_level + 1
         if next_level in LEVELS:
             self.unlocked_levels.add(next_level)
             print(f"已解鎖關卡 {next_level}!")
 
-    # --- ↓↓↓ 【【【本次修改：get_all_saves 現在會讀取存檔內容】】】 ↓↓↓ ---
     def get_all_saves(self):
         files = [f for f in os.listdir(self.save_folder) if f.endswith('.json')]
         saves = []
@@ -84,11 +109,9 @@ class SaveManager:
             try:
                 mtime = os.path.getmtime(file_path)
                 
-                # 開啟檔案以讀取其內容
                 with open(file_path, 'r') as f:
                     data = json.load(f)
                     unlocked_levels = data.get('unlocked_levels', [1])
-                    # 已解鎖的最高等級即為進度
                     highest_level = max(unlocked_levels) if unlocked_levels else 1
                 
                 saves.append({
@@ -98,10 +121,8 @@ class SaveManager:
                     'highest_level': highest_level
                 })
             except (FileNotFoundError, json.JSONDecodeError):
-                # 如果檔案損壞或找不到，就跳過
                 continue
         return sorted(saves, key=lambda x: x['time'], reverse=True)
-    # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
     def delete_save(self, file_path):
         if os.path.exists(file_path):

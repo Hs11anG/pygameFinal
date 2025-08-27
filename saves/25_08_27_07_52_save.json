@@ -5,10 +5,14 @@
         3
     ],
     "player_stats": {
-        "speed_multiplier": 1.7490062499999994,
-        "skill_duration_bonus": 18000,
-        "skill_cooldown_multiplier": 0.7290000000000001,
-        "global_cooldown_multiplier": 0.5314410000000002,
+        "speed_multiplier": 1.0,
+        "skill_duration_bonus": 0,
+        "skill_cooldown_multipliers": {
+            "1": 0.81,
+            "2": 1.0,
+            "3": 1.0
+        },
+        "global_cooldown_multiplier": 1.0,
         "weapon_data": {
             "1": {
                 "id": "bsword",
@@ -19,22 +23,22 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 105,
-                "cooldown": 0.5,
+                "damage": 40,
+                "cooldown": 0.6,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             },
             "2": {
-                "id": "board",
+                "id": "skill1",
                 "name": "\u8f49\u578b\u6b63\u7fa9",
                 "image_path": "assets/images/board.png",
                 "size": [
                     70,
                     70
                 ],
-                "projectile_size_multiplier": 0.9,
-                "damage": 210,
-                "cooldown": 0.8,
+                "projectile_size_multiplier": 1.2,
+                "damage": 120,
+                "cooldown": 0.5,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"
             },
@@ -47,11 +51,12 @@
                     100
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 250,
-                "cooldown": 1,
+                "damage": 100,
+                "cooldown": 3.0,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
             }
-        }
+        },
+        "rescue_skill_speed_multiplier": 0.9
     }
 }

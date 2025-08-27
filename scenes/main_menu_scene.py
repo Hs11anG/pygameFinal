@@ -21,8 +21,7 @@ class MainMenuScene(Scene):
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                return False
             
             if event.type == pygame.MOUSEMOTION:
                 self.hovered_option = -1
@@ -33,8 +32,10 @@ class MainMenuScene(Scene):
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and self.hovered_option != -1:
+                    if self.hovered_option == 2: # 離開遊戲的選項
+                        return False # <--- 修改：回傳 False
                     self.select_option(self.hovered_option)
-
+        return True
     def select_option(self, index):
         if index == 0: # 開始新遊戲
             saves = save_manager.get_all_saves()
@@ -57,8 +58,8 @@ class MainMenuScene(Scene):
             save_slot_scene.setup('load')
             self.manager.switch_to_scene('save_slot')
             
-        elif index == 2: # 離開遊戲
-            pygame.quit(); exit()
+        # elif index == 2: # 離開遊戲
+            # pygame.quit(); exit()
             
     def update(self):
         pass

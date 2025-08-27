@@ -75,9 +75,10 @@ class LevelSelectScene(Scene):
         # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
             
         for event in events:
-            if event.type == pygame.QUIT: pygame.quit(); exit()
+            if event.type == pygame.QUIT:  return False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.manager.switch_to_scene('main_menu')
+        return True
 
     def update(self):
         # --- ↓↓↓ 【【【本次修改：對唯一的 Player 進行操作】】】 ↓↓↓ ---

@@ -104,24 +104,38 @@ class Game:
         assets.load_music('background', 'assets/sounds/BGmusic.mp3')
 
     def run(self):
-        """
-        遊戲主迴圈
-        """
-        while True:
-            # 取得所有事件
-            events = pygame.event.get()
+            """
+            遊戲主迴圈
+            """
+            running = True # <--- 新增一個 running 變數
+            while running: # <--- 將 while True 改成 while running
+                # 取得所有事件
+                events = pygame.event.get()
+
+                # --- ↓↓↓ 【【【修改部分】】】 ↓↓↓ ---
+                # 將事件交給當前的場景處理
+                # 讓 handle_events 可以回傳一個值來決定是否繼續執行
+                running = self.scene_manager.handle_events(events)
+                if not running:
+                    break # 如果場景說要結束，就直接跳出迴圈
+                # --- ↑↑↑ 【【【修改部分】】】 ↑↑↑ ---
+
+                # 更新當前場景的狀態
+                self.scene_manager.update()
+                # 繪製當前的場景
+                self.scene_manager.draw(self.screen)
+                
+                # 更新螢幕顯示
+                pygame.display.flip()
+                # 控制遊戲幀率
+                self.clock.tick(FPS)
             
-            # 將事件交給當前的場景處理
-            self.scene_manager.handle_events(events)
-            # 更新當前場景的狀態
-            self.scene_manager.update()
-            # 繪製當前的場景
-            self.scene_manager.draw(self.screen)
-            
-            # 更新螢幕顯示
-            pygame.display.flip()
-            # 控制遊戲幀率
-            self.clock.tick(FPS)
+            # --- ↓↓↓ 【【【新增部分】】】 ↓↓↓ ---
+            # 將退出邏輯統一放到迴圈外面
+            pygame.quit()
+            # exit() # 在 .py 檔中執行時可以不加，打包時 sys.exit() 比較保險
+            import sys
+            sys.exit()
 
 if __name__ == '__main__':
     game = Game()

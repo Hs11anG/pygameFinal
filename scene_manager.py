@@ -54,3 +54,7 @@ class SceneManager:
         
     def get_player(self):
         return self.player
+    
+    def handle_events(self, events):
+        # 讓 scene 的 handle_events 回傳布林值
+        return self.current_scene.handle_events(events)

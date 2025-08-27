@@ -102,7 +102,7 @@ class GameplayScene(Scene):
     def handle_events(self, events):
         self.events = events
         for event in events:
-            if event.type == pygame.QUIT: pygame.quit(); exit()
+            if event.type == pygame.QUIT:  return False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.manager.switch_to_scene('main_menu')
             
@@ -125,6 +125,7 @@ class GameplayScene(Scene):
                         self.level_start_time += pause_duration
                         self.player.apply_upgrade(self.current_upgrade_choices[chosen_index])
                         self.game_state = 'playing'
+        return True
 
     def update(self):
         now = pygame.time.get_ticks()

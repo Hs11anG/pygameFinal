@@ -23,12 +23,12 @@ class StoryScene(Scene):
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
-                pygame.quit()
+                return False
                 exit()
             # 按下空白鍵可以跳過當前行或結束故事
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.advance_story()
-
+        return True
     def update(self):
         now = pygame.time.get_ticks()
         # 時間到了自動播放下一行

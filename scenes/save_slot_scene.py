@@ -26,10 +26,10 @@ class SaveSlotScene(Scene):
     def handle_events(self, events):
         if self.show_delete_prompt:
             self.handle_delete_prompt_events(events)
-            return
+            return True
 
         for event in events:
-            if event.type == pygame.QUIT: pygame.quit(); exit()
+            if event.type == pygame.QUIT:  return False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.manager.switch_to_scene('main_menu')
             
@@ -40,9 +40,10 @@ class SaveSlotScene(Scene):
                     if rect.collidepoint(event.pos):
                         self.hovered_option = i
                         break
-
+        
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.hovered_option != -1:
                 self.select_slot(self.hovered_option)
+        return True
 
     def select_slot(self, index):
         selected_file = self.save_files[index]
@@ -66,8 +67,7 @@ class SaveSlotScene(Scene):
 
     def handle_delete_prompt_events(self, events):
         for event in events:
-            if event.type == pygame.QUIT: pygame.quit(); exit()
-            
+            if event.type == pygame.QUIT:  return False            
             if event.type == pygame.MOUSEMOTION:
                 self.prompt_selection = ''
                 if self.prompt_rects['是'].collidepoint(event.pos):
@@ -91,6 +91,7 @@ class SaveSlotScene(Scene):
 
                 elif self.prompt_selection == '否':
                     self.show_delete_prompt = False
+        return True
     
     def update(self):
         """此場景為靜態，不需更新"""

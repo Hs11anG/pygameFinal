@@ -42,7 +42,7 @@ class EndLevelScene(Scene):
 
     def handle_events(self, events):
         for event in events:
-            if event.type == pygame.QUIT: pygame.quit(); exit()
+            if event.type == pygame.QUIT: return False
             
             if event.type == pygame.MOUSEMOTION:
                 self.hovered_button_text = ''
@@ -50,11 +50,11 @@ class EndLevelScene(Scene):
                     if rect.collidepoint(event.pos):
                         self.hovered_button_text = text
                         break
-
+        
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.hovered_button_text:
                     self.on_button_click(self.hovered_button_text)
-    
+        return True
     # --- ↓↓↓ 【【【本次新增：處理按鈕點擊事件的函式】】】 ↓↓↓ ---
     def on_button_click(self, button_text):
         level_select_scene = self.manager.scenes['level_select']

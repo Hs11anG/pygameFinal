@@ -66,8 +66,8 @@ LEVELS = {
 
 SKILL_DATA = {
     1: {'duration': 5000, 'cooldown': 10000},
-    2: {'duration': 3000, 'cooldown': 12000},
-    3: {'duration': 0,    'cooldown': 45000}
+    2: {'duration': 5000, 'cooldown': 12000},
+    3: {'duration': 0,    'cooldown': 25000}
 }
 
 WEAPON_DATA = {

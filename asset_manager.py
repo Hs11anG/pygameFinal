@@ -15,9 +15,12 @@ class AssetManager:
             return
         self._initialized = True
         
+        # --- ↓↓↓ 【【【本次修改：初始化 Mixer 並新增 music 字典】】】 ↓↓↓ ---
+        pygame.mixer.init()
         self.fonts = {}
         self.images = {}
-        self.sounds = {}
+        self.music = {} # 用來存放音樂路徑
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         print("AssetManager initialized.")
 
     def load_font(self, name, path, size):
@@ -34,29 +37,40 @@ class AssetManager:
             print(f"Warning: Font '{name}' not found!")
         return font
 
-    # --- ↓↓↓ 以下是這次新增/修改的程式碼 ↓↓↓ ---
-
     def load_image(self, name, path):
-        """載入一個圖片並用名稱儲存起來"""
         try:
-            # pygame.image.load() 會回傳一個 Surface 物件
             image = pygame.image.load(path)
-            # .convert_alpha() 會轉換圖片的像素格式，包含處理透明度
-            # 這一步驟對效能至關重要，能讓後續繪製速度大幅提升！
             self.images[name] = image.convert_alpha()
             print(f"Image '{name}' loaded from {path}")
         except pygame.error as e:
             print(f"Error loading image '{name}' from {path}: {e}")
 
     def get_image(self, name):
-        """根據名稱取得一個已載入的圖片"""
         image = self.images.get(name)
         if image is None:
             print(f"Warning: Image '{name}' not found!")
         return image
 
-# --- ↑↑↑ 以上是這次新增/修改的程式碼 ↑↑↑ ---
+    # --- ↓↓↓ 【【【本次新增：載入與播放音樂的函式】】】 ↓↓↓ ---
+    def load_music(self, name, path):
+        """僅記錄音樂的名稱和路徑，不實際載入到記憶體"""
+        self.music[name] = path
+        print(f"Music '{name}' path registered: {path}")
 
+    def play_music(self, name, loops=-1, volume=0.5):
+        """根據名稱播放音樂"""
+        path = self.music.get(name)
+        if path:
+            try:
+                pygame.mixer.music.load(path)
+                pygame.mixer.music.set_volume(volume)
+                pygame.mixer.music.play(loops)
+                print(f"Playing music '{name}' from {path}")
+            except pygame.error as e:
+                print(f"Error playing music '{name}' from {path}: {e}")
+        else:
+            print(f"Warning: Music '{name}' not found!")
+    # --- ↑↑↑ 【【【本次新增】】】 ↑↑↑ ---
 
 # 全局唯一的實例
 assets = AssetManager()

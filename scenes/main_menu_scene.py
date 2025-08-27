@@ -42,11 +42,11 @@ class MainMenuScene(Scene):
                 save_manager.create_new_save()
                 self.manager.start_new_run()
 
-                level_select_scene = self.manager.scenes['level_select']
-                # --- ↓↓↓ 【【【本次修改：從主選單進入時，重置玩家位置】】】 ↓↓↓ ---
-                level_select_scene.setup(reset_player_pos=True)
+                # --- ↓↓↓ 【【【本次修改：切換到 StoryScene】】】 ↓↓↓ ---
+                story_scene = self.manager.scenes['story']
+                story_scene.setup() # 呼叫 setup 來重置故事狀態
+                self.manager.switch_to_scene('story')
                 # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
-                self.manager.switch_to_scene('level_select')
             else:
                 save_slot_scene = self.manager.scenes['save_slot']
                 save_slot_scene.setup('delete')
@@ -54,20 +54,13 @@ class MainMenuScene(Scene):
 
         elif index == 1: # 讀取存檔
             save_slot_scene = self.manager.scenes['save_slot']
-            # --- ↓↓↓ 【【【本次修改：setup 時明確告知不要重置位置】】】 ↓↓↓ ---
-            # (雖然 save_slot_scene 會處理 setup，但這裡保持一致性)
             save_slot_scene.setup('load')
-            # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
             self.manager.switch_to_scene('save_slot')
             
         elif index == 2: # 離開遊戲
             pygame.quit(); exit()
             
     def update(self):
-        """
-        主選單是靜態的，所以 update 方法目前不需要做任何事。
-        但這個方法必須存在，以符合 Scene 類別的規範。
-        """
         pass
 
     def draw(self, screen):

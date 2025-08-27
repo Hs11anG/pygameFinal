@@ -46,9 +46,9 @@ class GameplayScene(Scene):
         self.start_message_duration = 3500
         self.show_tutorial = False
         self.tutorial_text = [
-            "教學:攻擊",
+            "教學：移動與攻擊", "使用 [W][A][S][D] 或方向鍵來移動角色。",
             "滑鼠左鍵點擊來朝游標方向發射竹簡劍。", "注意左上角的目標生命值與剩餘時間。",
-            "教學:技能", "按下 [1] 或 [2] 可施放技能，技能圖示會顯示在畫面下方。",
+            "教學：技能", "按下 [1] 或 [2] 可施放技能，技能圖示會顯示在畫面下方。",
             "技能施放後會進入冷卻，冷卻完成才能再次使用。", "擊殺怪物累積能量，集滿可獲得三選一的強化。",
             "那麼，祝你好運！", "（按下 [空白鍵] 關閉教學）"
         ]
@@ -91,10 +91,7 @@ class GameplayScene(Scene):
         now = pygame.time.get_ticks()
         level_data = LEVELS.get(self.current_level)
         
-        # --- ↓↓↓ 【【【本次修改：簡化邏輯】】】 ↓↓↓ ---
-        # 直接讀取 setting 中的 start_message，如果沒有就給一個通用訊息
         message_text = level_data.get('start_message', "關卡開始！")
-        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         font = assets.get_font('title')
         if font: self.start_message_surf = font.render(message_text, True, HOVER_COLOR)
@@ -166,6 +163,11 @@ class GameplayScene(Scene):
         target_destroyed = self.protection_target and self.protection_target.current_health <= 0
 
         if target_destroyed:
+            # --- ↓↓↓ 【【【本次修改：在失敗時也存檔】】】 ↓↓↓ ---
+            print("挑戰失敗，但永久加成已儲存。")
+            save_manager.save_game(self.player) # 在切換場景前，儲存玩家狀態
+            # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
+            
             end_scene = self.manager.scenes['end_level']
             end_scene.setup('defeat', self.current_level, self.level_total_kills, self.background_image)
             self.manager.switch_to_scene('end_level')

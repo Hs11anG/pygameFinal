@@ -49,8 +49,8 @@ LEVELS = {
         # --- ↓↓↓ 【【【本次修改：合併訊息】】】 ↓↓↓ ---
         'start_message': '保護好 作者！這是最終的挑戰！',
         # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
-        'id': 'pier_assault_2',
-        'name': 'pier_assault_2',
+        'id': 'pier_assault_3',
+        'name': 'pier_assault_3',
         'background_image': 'assets/images/pier3_background.png',
         'protection_point': (650, 375),
         'player_spawn_point': (949, 616),
@@ -108,3 +108,17 @@ UPGRADE_DATA = {
         'permanent_rescue_speed': {'name': '老馬識途', 'description': '「搏命救援」後段速度減慢 10%', 'category': 'permanent', 'type': 'multiply', 'stat': 'rescue_skill_speed', 'value': 0.9},
     }
 }
+GAME_STORY = [
+    "在科技與傳統交織的近未來，府城 Tainan 卻因為可怖的汙染悄然變化。",
+    "一次的颱風肆虐，太陽能板的損毀汙染了海洋",
+    "它們侵蝕著歷史古蹟，扭曲人們的認知，威脅著這座城市的文化核心。",
+    "到處都是顏色奇異的鳥以及奇怪的光電怪物",
+    "你，身為文化之都以及民主聖地的孩子，",
+    "意外獲得了將「轉型正義」轉化為實體力量的能力。",
+    "去吧 用你手上的竹簡劍",
+    "你...將踏上淨化之旅",
+    "",
+    "府 城 淨 化 錄",
+    "",
+    "（按下 空白鍵 繼續...）"
+]

@@ -1,25 +1,19 @@
 # scene_manager.py
 import pygame
 from player import Player
-from save_manager import save_manager # 引入 save_manager
+from save_manager import save_manager
+# --- ↓↓↓ 【【【本次修改：引入 assets】】】 ↓↓↓ ---
+from asset_manager import assets
+# --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
 class Scene:
-    """
-    所有場景的基礎類別 (模板)。
-    """
     def __init__(self, manager):
         self.manager = manager
-
     def handle_events(self, events):
-        """處理該場景的事件"""
         raise NotImplementedError
-
     def update(self):
-        """更新該場景的狀態"""
         raise NotImplementedError
-
     def draw(self, screen):
-        """將該場景繪製到螢幕上"""
         raise NotImplementedError
 
 class SceneManager:
@@ -29,16 +23,17 @@ class SceneManager:
         self.player = None
 
     def switch_to_scene(self, scene_name):
-        # --- ↓↓↓ 【【【邏輯新增】】】 ↓↓↓ ---
-        # 當返回主選單時，重置所有遊戲相關的狀態
         if scene_name == 'main_menu':
             print("Returning to Main Menu, resetting states.")
-            # 銷毀當前的玩家物件
             self.player = None 
-            # 重置存檔管理器的當前狀態 (清除已載入的存檔)
             save_manager.current_save_slot = None
             save_manager.unlocked_levels = {1}
-        # --- ↑↑↑ 【【【邏輯新增】】】 ↑↑↑ ---
+            save_manager.tutorial_completed = False
+
+            # --- ↓↓↓ 【【【本次修改：透過 AssetManager 重播音樂】】】 ↓↓↓ ---
+            # 直接命令 AssetManager 重新播放背景音樂
+            assets.play_music('background', loops=-1)
+            # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
 
         self.current_scene = self.scenes[scene_name]
         
@@ -55,9 +50,7 @@ class SceneManager:
         self.current_scene.handle_events(events)
         
     def start_new_run(self):
-        """開始一輪新遊戲時，創建一個新的玩家"""
         self.player = Player(start_pos=(0, 0), level_number=1) 
         
     def get_player(self):
-        """提供一個取得玩家物件的接口"""
         return self.player

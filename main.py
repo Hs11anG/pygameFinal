@@ -21,7 +21,7 @@ class Game:
     def __init__(self):
         pygame.init()
         # Mixer 的初始化已經移到 AssetManager 中
-
+        pygame.key.stop_text_input()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("府 城 淨 化 錄")
         self.clock = pygame.time.Clock()

@@ -46,9 +46,9 @@ class GameplayScene(Scene):
         self.start_message_duration = 3500
         self.show_tutorial = False
         self.tutorial_text = [
-            "教學：移動與攻擊", "使用 [W][A][S][D] 或方向鍵來移動角色。",
+            "教學:攻擊",
             "滑鼠左鍵點擊來朝游標方向發射竹簡劍。", "注意左上角的目標生命值與剩餘時間。",
-            "教學：技能", "按下 [1] 或 [2] 可施放技能，技能圖示會顯示在畫面下方。",
+            "教學:技能", "按下 [1] 或 [2] 可施放技能，技能圖示會顯示在畫面下方。",
             "技能施放後會進入冷卻，冷卻完成才能再次使用。", "擊殺怪物累積能量，集滿可獲得三選一的強化。",
             "那麼，祝你好運！", "（按下 [空白鍵] 關閉教學）"
         ]
@@ -65,11 +65,7 @@ class GameplayScene(Scene):
             self.manager.start_new_run()
             self.player = self.manager.get_player()
 
-        # --- ↓↓↓ 【【【重要修正】】】 ↓↓↓ ---
-        # 進入 GameplayScene 後，玩家永遠不能移動
         self.player.can_move = False
-        # --- ↑↑↑ 【【【重要修正】】】 ↑↑↑ ---
-        
         self.player.reset_cooldowns(); self.player.reset_tactical_bonuses()
         self.player.rect.midbottom = level_data['player_spawn_point']
         self.player_group.add(self.player)
@@ -95,7 +91,11 @@ class GameplayScene(Scene):
         now = pygame.time.get_ticks()
         level_data = LEVELS.get(self.current_level)
         
-        message_text = level_data.get('start_message', f"保護好 {level_data.get('protection', '目標')} !")
+        # --- ↓↓↓ 【【【本次修改：簡化邏輯】】】 ↓↓↓ ---
+        # 直接讀取 setting 中的 start_message，如果沒有就給一個通用訊息
+        message_text = level_data.get('start_message', "關卡開始！")
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
+
         font = assets.get_font('title')
         if font: self.start_message_surf = font.render(message_text, True, HOVER_COLOR)
         
@@ -135,9 +135,6 @@ class GameplayScene(Scene):
         if self.game_state == 'level_start':
             if now >= self.start_message_end_time:
                 self.game_state = 'playing'
-                # --- ↓↓↓ 【【【重要修正】】】 ↓↓↓ ---
-                # 刪除了 self.player.can_move = True 這一行
-                # --- ↑↑↑ 【【【重要修正】】】 ↑↑↑ ---
                 self.level_start_time = now
         
         elif self.game_state == 'playing':
@@ -203,7 +200,7 @@ class GameplayScene(Scene):
         if self.game_state == 'playing':
              self.draw_countdown_and_victory(screen)
     
-    # ... 以下的其他函式 (spawn_rescue_skill, check_collisions, etc.) 維持不變 ...
+    # ... 以下的其他函式 (spawn_rescue_skill, etc.) 維持不變 ...
     def spawn_rescue_skill(self):
         if not self.rescue_skill_group.sprite:
             y_pos = self.protection_target.rect.centery

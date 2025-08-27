@@ -1,13 +1,14 @@
 {
     "unlocked_levels": [
         1,
-        2
+        2,
+        3
     ],
     "player_stats": {
         "speed_multiplier": 1.0,
         "skill_duration_bonus": 0,
         "skill_cooldown_multipliers": {
-            "1": 0.81,
+            "1": 0.9,
             "2": 1.0,
             "3": 1.0
         },
@@ -22,7 +23,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 0.9,
-                "damage": 30,
+                "damage": 50,
                 "cooldown": 0.6,
                 "projectile_class_name": "BswordProjectile",
                 "cooldown_type": "on_fire"
@@ -36,7 +37,7 @@
                     70
                 ],
                 "projectile_size_multiplier": 1.2,
-                "damage": 50,
+                "damage": 120,
                 "cooldown": 0.5,
                 "projectile_class_name": "BoardProjectile",
                 "cooldown_type": "on_fire"

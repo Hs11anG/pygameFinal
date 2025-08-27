@@ -56,7 +56,7 @@ class Game:
         assets.load_image('level_select_bg', 'assets/images/level_choose_bg.png')
         assets.load_image('level_select_mask', 'assets/images/level_choose_mask.png')
         assets.load_image('pier_assault_bg', 'assets/images/pier_background.png')
-        assets.load_image('pier_assault_2_bg', 'assets/images/pier2_background.png')
+        assets.load_image('pier_assault_2_bg', 'assets/images/pier3_background.png')
         assets.load_image('player', 'assets/images/player.png')
         assets.load_image('bsword', 'assets/images/bsword.png')
         assets.load_image('board', 'assets/images/board.png')

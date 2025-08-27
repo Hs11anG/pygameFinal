@@ -10,7 +10,9 @@ FPS = 60
 LEVELS = {
     1: {
         'protection' : '孔子的智慧',
-        'start_message': '先熟悉一下操作吧！',
+        # --- ↓↓↓ 【【【本次修改：合併訊息】】】 ↓↓↓ ---
+        'start_message': '保護好 孔子的智慧！',
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         'id': 'pier_assault',
         'name': 'pier_assault',
         'background_image': 'assets/images/pier_background.png',
@@ -26,7 +28,9 @@ LEVELS = {
     },
     2: {
         'protection' : '台南的小吃',
-        'start_message': '出現了新的敵人！小心牠們的動向！',
+        # --- ↓↓↓ 【【【本次修改：合併訊息】】】 ↓↓↓ ---
+        'start_message': '保護好 台南的小吃！',
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         'id': 'pier_assault_2',
         'name': 'pier_assault_2',
         'background_image': 'assets/images/pier2_background.png',
@@ -42,12 +46,14 @@ LEVELS = {
     },
     3: {
         'protection' : '作者',
-        'start_message': '這是最終挑戰，敵人的數量和強度都達到了頂峰！',
+        # --- ↓↓↓ 【【【本次修改：合併訊息】】】 ↓↓↓ ---
+        'start_message': '保護好 作者！這是最終的挑戰！',
+        # --- ↑↑↑ 【【【本次修改】】】 ↑↑↑ ---
         'id': 'pier_assault_2',
         'name': 'pier_assault_2',
-        'background_image': 'assets/images/pier2_background.png',
+        'background_image': 'assets/images/pier3_background.png',
         'protection_point': (650, 375),
-        'player_spawn_point': (850, 375),
+        'player_spawn_point': (949, 616),
         'offsetx' : 20, 
         'offsety' : 20,
         'playersize': (30, 60),
